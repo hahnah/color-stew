@@ -45,7 +45,7 @@ update msg model =
                             color
 
                         Err _ ->
-                            defaultColor
+                            model.color
               }
             , Cmd.none
             )
