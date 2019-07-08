@@ -4,6 +4,8 @@ import Browser
 import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (type_, value)
 import Html.Events exposing (onInput)
+import Color.Convert exposing (colorToHex)
+import Color exposing (Color)
 
 
 main =
@@ -16,12 +18,14 @@ main =
 
 
 type alias Model =
-    { colorCode : String }
+    { color : Color }
 
+defaultColor : Color
+defaultColor = Color.white
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { colorCode = "#ffffff" }, Cmd.none )
+    ( { color = defaultColor }, Cmd.none )
 
 
 type Msg
@@ -31,8 +35,17 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case ( msg, model ) of
-        ( OnChange colorCode_, _ ) ->
-            ( { colorCode = colorCode_ }, Cmd.none )
+        ( OnChange colorHex, _ ) ->
+            (
+                { color =
+                    case Color.Convert.hexToColor colorHex of
+                        Ok color ->
+                            color
+                        Err _ ->
+                            defaultColor
+                }
+            , Cmd.none
+            )
 
 
 subscriptions : Model -> Sub Msg
@@ -42,12 +55,16 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
+    let
+        colorHex = Color.Convert.colorToHex model.color
+    in
+    
     div []
         [ input
             [ type_ "color"
-            , value model.colorCode
+            , value colorHex
             , onInput OnChange
             ]
             []
-        , text model.colorCode
+        , text colorHex
         ]
