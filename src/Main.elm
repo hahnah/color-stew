@@ -1,11 +1,11 @@
 module Main exposing (Model, Msg(..), init, main, subscriptions, update, view)
 
 import Browser
+import Color exposing (Color)
+import Color.Convert exposing (colorToHex)
 import Html exposing (Html, div, input, text)
 import Html.Attributes exposing (type_, value)
 import Html.Events exposing (onInput)
-import Color.Convert exposing (colorToHex)
-import Color exposing (Color)
 
 
 main =
@@ -20,8 +20,11 @@ main =
 type alias Model =
     { color : Color }
 
+
 defaultColor : Color
-defaultColor = Color.white
+defaultColor =
+    Color.white
+
 
 init : () -> ( Model, Cmd Msg )
 init _ =
@@ -36,14 +39,14 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case ( msg, model ) of
         ( OnChange colorHex, _ ) ->
-            (
-                { color =
+            ( { color =
                     case Color.Convert.hexToColor colorHex of
                         Ok color ->
                             color
+
                         Err _ ->
                             defaultColor
-                }
+              }
             , Cmd.none
             )
 
@@ -56,9 +59,9 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     let
-        colorHex = Color.Convert.colorToHex model.color
+        colorHex =
+            Color.Convert.colorToHex model.color
     in
-    
     div []
         [ input
             [ type_ "color"
