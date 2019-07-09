@@ -3,8 +3,8 @@ module Main exposing (Model, Msg(..), init, main, subscriptions, update, view)
 import Browser
 import Color exposing (Color)
 import Color.Convert exposing (colorToHex)
-import Html exposing (Html, div, input, text, span)
-import Html.Attributes exposing (style, type_, value, width, height)
+import Html exposing (Html, div, input, span, text)
+import Html.Attributes exposing (height, style, type_, value, width)
 import Html.Events exposing (onInput)
 import Parser exposing ((|.), (|=), Parser, float, spaces, succeed, symbol)
 
@@ -62,7 +62,9 @@ view model =
     let
         colorHex =
             Color.Convert.colorToHex model.color
-        dyad = pickDyad model.color
+
+        dyad =
+            pickDyad model.color
     in
     div
         []
@@ -76,21 +78,24 @@ view model =
         , div [] (viewColorSet dyad)
         ]
 
+
 viewColorSet : List Color -> List (Html msg)
 viewColorSet colors =
     List.map viewColor colors
+
 
 viewColor : Color -> Html msg
 viewColor color =
     span
         [ style "background-color" (Color.Convert.colorToHex color) ]
-        [ text "　　　　" ]
+        [ text "\u{3000}\u{3000}\u{3000}\u{3000}" ]
 
 
 pickDyad : Color -> List Color
 pickDyad baseColor =
     let
-        nextColor = pickNthNext baseColor 1 2
+        nextColor =
+            pickNthNext baseColor 1 2
     in
     case nextColor of
         Ok color ->
@@ -121,38 +126,46 @@ hsl =
         |= float
         |. symbol "%)"
 
+
 pickNthNext : Color -> Int -> Int -> Result String Color
 pickNthNext baseColor n total =
     let
-        hueDifferenceUnit = 1 / (toFloat total)
+        hueDifferenceUnit =
+            1 / toFloat total
+
         baseColorHslInDegree =
             baseColor
                 |> Color.Convert.colorToCssHsl
                 |> Parser.run hsl
+
         baseColorHsl =
             case baseColorHslInDegree of
                 Ok colorHsl ->
-                    Ok {- Change HSL formart from {h: 0-360[deg], s: 0-100[%], l: 0-100[%]} to {h: 0-1, s: 0-1, l: 0-1} -}
+                    Ok
+                        {- Change HSL formart from {h: 0-360[deg], s: 0-100[%], l: 0-100[%]} to {h: 0-1, s: 0-1, l: 0-1} -}
                         { colorHsl
-                        | h = colorHsl.h / 360
-                        , s = colorHsl.s / 100
-                        , l = colorHsl.l / 100
+                            | h = colorHsl.h / 360
+                            , s = colorHsl.s / 100
+                            , l = colorHsl.l / 100
                         }
+
                 Err msg ->
                     Err msg
     in
-        case baseColorHsl of
-                Ok colorHsl ->
-                    let
-                        gainedHue = colorHsl.h + (toFloat n) * hueDifferenceUnit
-                        pickedHue =
-                            if gainedHue >= 1
-                                then
-                                    gainedHue - 1
-                                else
-                                    gainedHue
-                    in
-                        Ok <| Color.hsl pickedHue colorHsl.s colorHsl.l
+    case baseColorHsl of
+        Ok colorHsl ->
+            let
+                gainedHue =
+                    colorHsl.h + toFloat n * hueDifferenceUnit
 
-                Err _ ->
-                    Err "Failed pickNthNext"
+                pickedHue =
+                    if gainedHue >= 1 then
+                        gainedHue - 1
+
+                    else
+                        gainedHue
+            in
+            Ok <| Color.hsl pickedHue colorHsl.s colorHsl.l
+
+        Err _ ->
+            Err "Failed pickNthNext"
