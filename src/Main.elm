@@ -133,13 +133,13 @@ pickNthNext baseColor n total =
         hueDifferenceUnit =
             1 / toFloat total
 
-        baseColorHslInDegree =
+        baseColorHslWithDegreeHue =
             baseColor
                 |> Color.Convert.colorToCssHsl
                 |> Parser.run hsl
 
         baseColorHsl =
-            case baseColorHslInDegree of
+            case baseColorHslWithDegreeHue of
                 Ok colorHsl ->
                     Ok
                         {- Change HSL formart from {h: 0-360[deg], s: 0-100[%], l: 0-100[%]} to {h: 0-1, s: 0-1, l: 0-1} -}
