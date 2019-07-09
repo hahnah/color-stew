@@ -3,8 +3,8 @@ module Main exposing (Model, Msg(..), init, main, subscriptions, update, view)
 import Browser
 import Color exposing (Color)
 import Color.Convert exposing (colorToHex)
-import Html exposing (Html, div, input, text)
-import Html.Attributes exposing (style, type_, value)
+import Html exposing (Html, div, input, text, span)
+import Html.Attributes exposing (style, type_, value, width, height)
 import Html.Events exposing (onInput)
 import Parser exposing ((|.), (|=), Parser, float, spaces, succeed, symbol)
 
@@ -62,11 +62,10 @@ view model =
     let
         colorHex =
             Color.Convert.colorToHex model.color
+        dyad = pickDyad model.color
     in
     div
-        [ style "color" "#ffffff"
-        , style "background-color" "#123456"
-        ]
+        []
         [ input
             [ type_ "color"
             , value colorHex
@@ -74,24 +73,32 @@ view model =
             ]
             []
         , text colorHex
+        , div [] (viewColorSet dyad)
         ]
 
-{- progressing
+viewColorSet : List Color -> List (Html msg)
+viewColorSet colors =
+    List.map viewColor colors
+
+viewColor : Color -> Html msg
+viewColor color =
+    span
+        [ style "background-color" (Color.Convert.colorToHex color) ]
+        [ text "　　　　" ]
+
+
 pickDyad : Color -> List Color
 pickDyad baseColor =
     let
-        baseColorHsl =
-            baseColor
-                |> Color.Convert.colorToCssHsl
-                |> Parser.run hsl
+        nextColor = pickNthNext baseColor 1 2
     in
-    case baseColorHsl of
-        Ok colorHsl ->
-            baseColor :: [ Color.hsl (abs (1 - colorHsl.h)) colorHsl.s colorHsl.l ]
+    case nextColor of
+        Ok color ->
+            baseColor :: [ color ]
 
         Err _ ->
             [ baseColor ]
--}
+
 
 type alias Hsl =
     { h : Float
@@ -109,25 +116,41 @@ hsl =
         |. symbol ","
         |. spaces
         |= float
-        |. symbol ","
+        |. symbol "%,"
         |. spaces
         |= float
-        |. symbol ")"
+        |. symbol "%)"
 
 pickNthNext : Color -> Int -> Int -> Result String Color
 pickNthNext baseColor n total =
     let
-        hueDifferenceUnit = 1.0 / (toFloat total)
-        baseColorHsl =
+        hueDifferenceUnit = 1 / (toFloat total)
+        baseColorHslInDegree =
             baseColor
                 |> Color.Convert.colorToCssHsl
                 |> Parser.run hsl
+        baseColorHsl =
+            case baseColorHslInDegree of
+                Ok colorHsl ->
+                    Ok {- Change HSL formart from {h: 0-360[deg], s: 0-100[%], l: 0-100[%]} to {h: 0-1, s: 0-1, l: 0-1} -}
+                        { colorHsl
+                        | h = colorHsl.h / 360
+                        , s = colorHsl.s / 100
+                        , l = colorHsl.l / 100
+                        }
+                Err msg ->
+                    Err msg
     in
         case baseColorHsl of
                 Ok colorHsl ->
                     let
                         gainedHue = colorHsl.h + (toFloat n) * hueDifferenceUnit
-                        pickedHue = gainedHue - (toFloat (floor gainedHue))
+                        pickedHue =
+                            if gainedHue >= 1
+                                then
+                                    gainedHue - 1
+                                else
+                                    gainedHue
                     in
                         Ok <| Color.hsl pickedHue colorHsl.s colorHsl.l
 
