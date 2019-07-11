@@ -2,8 +2,10 @@ module Main exposing (main)
 
 import Browser
 import Color exposing (Color)
-import Color.Convert exposing (colorToHex)
-import Html exposing (Html, div, input, span, text)
+import Color.Convert exposing (colorToCssHsl, colorToCssRgb, colorToHex)
+import Element exposing (Element, column, el, html, htmlAttribute, layout, row, text)
+import Element.Background as Background
+import Html exposing (Html, input)
 import Html.Attributes exposing (height, style, type_, value, width)
 import Html.Events exposing (onInput)
 import Parser exposing ((|.), (|=), Parser, float, spaces, succeed, symbol)
@@ -25,6 +27,11 @@ type alias Model =
 defaultColor : Color
 defaultColor =
     Color.white
+
+
+defaultElmUIColor : Element.Color
+defaultElmUIColor =
+    Element.rgb 1 1 1
 
 
 init : () -> ( Model, Cmd Msg )
@@ -66,29 +73,37 @@ view model =
         dyad =
             pickDyad model.color
     in
-    div
+    layout
         []
-        [ input
-            [ type_ "color"
-            , value colorHex
-            , onInput OnChange
-            ]
+        (column
             []
-        , text colorHex
-        , div [] (viewColorSet dyad)
-        ]
+            [ html
+                (input
+                    [ type_ "color"
+                    , value colorHex
+                    , onInput OnChange
+                    ]
+                    []
+                )
+            , text colorHex
+            , viewColorSet dyad
+            ]
+        )
 
 
-viewColorSet : List Color -> List (Html msg)
+viewColorSet : List Color -> Element msg
 viewColorSet colors =
-    List.map viewColor colors
+    colors
+        |> List.map toElmUIColor
+        |> List.map viewColor
+        |> row []
 
 
-viewColor : Color -> Html msg
+viewColor : Element.Color -> Element msg
 viewColor color =
-    span
-        [ style "background-color" (Color.Convert.colorToHex color) ]
-        [ text "\u{3000}\u{3000}\u{3000}\u{3000}" ]
+    el
+        [ Background.color color ]
+        (text "\u{3000}\u{3000}\u{3000}\u{3000}")
 
 
 pickDyad : Color -> List Color
@@ -103,6 +118,44 @@ pickDyad baseColor =
 
         Err _ ->
             [ baseColor ]
+
+
+toElmUIColor : Color -> Element.Color
+toElmUIColor color =
+    let
+        colorRgb_ : Result (List Parser.DeadEnd) Rgb
+        colorRgb_ =
+            color
+                |> colorToCssRgb
+                |> Parser.run rgb
+    in
+    case colorRgb_ of
+        Ok colorRgb ->
+            Element.rgb (colorRgb.r / 255) (colorRgb.g / 255) (colorRgb.b / 255)
+
+        Err _ ->
+            defaultElmUIColor
+
+
+type alias Rgb =
+    { r : Float
+    , g : Float
+    , b : Float
+    }
+
+
+rgb : Parser Rgb
+rgb =
+    succeed Rgb
+        |. symbol "rgb("
+        |= float
+        |. symbol ","
+        |. spaces
+        |= float
+        |. symbol ","
+        |. spaces
+        |= float
+        |. symbol ")"
 
 
 type alias Hsl =
