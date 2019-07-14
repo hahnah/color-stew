@@ -3,14 +3,14 @@ module Main exposing (main)
 import Browser
 import Color exposing (Color)
 import Color.Convert exposing (colorToCssHsl, colorToCssRgb, colorToHex)
-import Element exposing (Element, column, el, none, html, htmlAttribute, layout, row, text, width, height, fill, px, centerX, spacing)
+import Element exposing (Element, centerX, column, el, fill, height, html, htmlAttribute, layout, none, px, row, spacing, text, width)
 import Element.Background as Background
+import Element.Border as Border
 import Element.Events exposing (onClick)
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Parser exposing ((|.), (|=), Parser, float, spaces, succeed, symbol)
-import Element.Border as Border
 
 
 main =
@@ -56,7 +56,8 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case ( msg, model ) of
         ( OnChange colorHex, _ ) ->
-            ( { model | pickedColor =
+            ( { model
+                | pickedColor =
                     case Color.Convert.hexToColor colorHex of
                         Ok color ->
                             color
@@ -66,8 +67,8 @@ update msg model =
               }
             , Cmd.none
             )
-        
-        ( OnSelectScheme schemeColors, _) ->
+
+        ( OnSelectScheme schemeColors, _ ) ->
             ( { model | stewedColors = schemeColors }
             , Cmd.none
             )
@@ -94,7 +95,7 @@ view model =
                 ]
             ]
         )
-        
+
 
 viewHeader : Element msg
 viewHeader =
@@ -152,6 +153,7 @@ viewColorScheme scheme colors =
         , viewColorSet colors
         ]
 
+
 viewColorSet : List Color -> Element msg
 viewColorSet colors =
     colors
@@ -171,7 +173,10 @@ viewMainPane : Model -> Element msg
 viewMainPane model =
     let
         stewedColor : Color
-        stewedColor = Color.darkPurple -- provisional
+        stewedColor =
+            Color.darkPurple
+
+        -- provisional
     in
     column
         [ width fill
@@ -187,26 +192,26 @@ viewMainPane model =
 viewStewedColor : Color -> Element msg
 viewStewedColor color =
     column
-       [ width fill
-       , Border.width 1
-       ]
-       [ row
-           [ centerX
-           , spacing 10
-           ]
-           [ text <| Color.Convert.colorToHex color
-           , text "Copy"
-           ]
-       , el
+        [ width fill
+        , Border.width 1
+        ]
+        [ row
+            [ centerX
+            , spacing 10
+            ]
+            [ text <| Color.Convert.colorToHex color
+            , text "Copy"
+            ]
+        , el
             [ centerX
             , width <| px 100
             , height <| px 70
             , Background.color <| toElmUIColor color
             ]
             Element.none
-       , el [ centerX ] <| text "SaturationSlider"
-       , el [ centerX ] <| text "LightnessSlider"
-       ]
+        , el [ centerX ] <| text "SaturationSlider"
+        , el [ centerX ] <| text "LightnessSlider"
+        ]
 
 
 pickDyad : Color -> List Color
