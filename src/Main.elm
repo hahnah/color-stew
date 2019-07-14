@@ -48,14 +48,14 @@ init _ =
 
 
 type Msg
-    = OnChange String
-    | OnSelectScheme (List Color)
+    = PickColor String
+    | SelectScheme (List Color)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case ( msg, model ) of
-        ( OnChange colorHex, _ ) ->
+        ( PickColor colorHex, _ ) ->
             ( { model
                 | pickedColor =
                     case Color.Convert.hexToColor colorHex of
@@ -68,7 +68,7 @@ update msg model =
             , Cmd.none
             )
 
-        ( OnSelectScheme schemeColors, _ ) ->
+        ( SelectScheme schemeColors, _ ) ->
             ( { model | stewedColors = schemeColors }
             , Cmd.none
             )
@@ -126,7 +126,7 @@ viewLeftPane model =
                 (Html.input
                     [ Attributes.type_ "color"
                     , Attributes.value <| Color.Convert.colorToHex model.pickedColor
-                    , Events.onInput OnChange
+                    , Events.onInput PickColor
                     ]
                     []
                 )
@@ -146,7 +146,7 @@ viewLeftPane model =
 viewColorScheme : String -> List Color -> Element Msg
 viewColorScheme scheme colors =
     column
-        [ onClick <| OnSelectScheme colors
+        [ onClick <| SelectScheme colors
         , spacing 10
         ]
         [ text scheme
