@@ -3,8 +3,9 @@ module Main exposing (main)
 import Browser
 import Color exposing (Color)
 import Color.Convert exposing (colorToCssHsl, colorToCssRgb, colorToHex)
-import Element exposing (Element, column, el, html, htmlAttribute, layout, row, text, width, height, fill, px, centerX, spacing)
+import Element exposing (Element, column, el, none, html, htmlAttribute, layout, row, text, width, height, fill, px, centerX, spacing)
 import Element.Background as Background
+import Element.Events exposing (onClick)
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
@@ -22,7 +23,9 @@ main =
 
 
 type alias Model =
-    { pickedColor : Color }
+    { pickedColor : Color
+    , stewedColors : List Color
+    }
 
 
 defaultColor : Color
@@ -37,18 +40,23 @@ defaultElmUIColor =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { pickedColor = defaultColor }, Cmd.none )
+    ( { pickedColor = defaultColor
+      , stewedColors = []
+      }
+    , Cmd.none
+    )
 
 
 type Msg
     = OnChange String
+    | OnSelectScheme (List Color)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case ( msg, model ) of
         ( OnChange colorHex, _ ) ->
-            ( { pickedColor =
+            ( { model | pickedColor =
                     case Color.Convert.hexToColor colorHex of
                         Ok color ->
                             color
@@ -56,6 +64,11 @@ update msg model =
                         Err _ ->
                             model.pickedColor
               }
+            , Cmd.none
+            )
+        
+        ( OnSelectScheme schemeColors, _) ->
+            ( { model | stewedColors = schemeColors }
             , Cmd.none
             )
 
@@ -129,10 +142,12 @@ viewLeftPane model =
         ]
 
 
-viewColorScheme : String -> List Color -> Element msg
+viewColorScheme : String -> List Color -> Element Msg
 viewColorScheme scheme colors =
     column
-        [ spacing 10 ]
+        [ onClick <| OnSelectScheme colors
+        , spacing 10
+        ]
         [ text scheme
         , viewColorSet colors
         ]
@@ -165,14 +180,12 @@ viewMainPane model =
         [ el [ centerX ] <| text "PREVIEW AREA"
         , row
             [ width fill ]
-            [ viewStewedColor stewedColor 0 0 
-            , viewStewedColor stewedColor 0 0
-            ]
+            (List.map viewStewedColor model.stewedColors)
         ]
 
 
-viewStewedColor : Color -> Float -> Float -> Element msg
-viewStewedColor color saturation lightness =
+viewStewedColor : Color -> Element msg
+viewStewedColor color =
     column
        [ width fill
        , Border.width 1
@@ -181,10 +194,16 @@ viewStewedColor color saturation lightness =
            [ centerX
            , spacing 10
            ]
-           [ text "#Hex"
+           [ text <| Color.Convert.colorToHex color
            , text "Copy"
            ]
-       , el [ centerX ] <| text "Color"
+       , el
+            [ centerX
+            , width <| px 100
+            , height <| px 70
+            , Background.color <| toElmUIColor color
+            ]
+            Element.none
        , el [ centerX ] <| text "SaturationSlider"
        , el [ centerX ] <| text "LightnessSlider"
        ]
