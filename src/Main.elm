@@ -7,6 +7,7 @@ import Element exposing (Element, centerX, column, el, fill, height, html, htmlA
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
+import Element.Input exposing (defaultThumb, labelRight, slider)
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
@@ -50,6 +51,8 @@ init _ =
 type Msg
     = PickColor String
     | SelectScheme (List Color)
+    | AdjustSaturation Float
+    | AdjustLightness Float
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -72,6 +75,12 @@ update msg model =
             ( { model | stewedColors = schemeColors }
             , Cmd.none
             )
+
+        ( AdjustSaturation saturation, _ ) ->
+            Debug.todo "Update saturation for a specific color"
+
+        ( AdjustLightness lightness, _ ) ->
+            Debug.todo "Update lightness for a specific color"
 
 
 subscriptions : Model -> Sub Msg
@@ -169,7 +178,7 @@ viewColor color =
         (text "\u{3000}\u{3000}\u{3000}\u{3000}")
 
 
-viewMainPane : Model -> Element msg
+viewMainPane : Model -> Element Msg
 viewMainPane model =
     let
         stewedColor : Color
@@ -189,29 +198,78 @@ viewMainPane model =
         ]
 
 
-viewStewedColor : Color -> Element msg
+viewStewedColor : Color -> Element Msg
 viewStewedColor color =
-    column
-        [ width fill
-        , Border.width 1
-        ]
-        [ row
-            [ centerX
-            , spacing 10
-            ]
-            [ text <| Color.Convert.colorToHex color
-            , text "Copy"
-            ]
-        , el
-            [ centerX
-            , width <| px 100
-            , height <| px 70
-            , Background.color <| toElmUIColor color
-            ]
-            Element.none
-        , el [ centerX ] <| text "SaturationSlider"
-        , el [ centerX ] <| text "LightnessSlider"
-        ]
+    let
+        colorHsl_ : Result (List Parser.DeadEnd) Hsl
+        colorHsl_ =
+            color
+                |> Color.Convert.colorToCssHsl
+                |> Parser.run hsl
+    in
+    case colorHsl_ of
+        Ok colorHsl ->
+            column
+                [ width fill
+                , Border.width 1
+                ]
+                [ row
+                    [ centerX
+                    , spacing 10
+                    ]
+                    [ text <| Color.Convert.colorToHex color
+                    , text "Copy"
+                    ]
+                , el
+                    [ centerX
+                    , width <| px 100
+                    , height <| px 70
+                    , Background.color <| toElmUIColor color
+                    ]
+                    Element.none
+                , slider
+                    []
+                    { label = labelRight [] <| text <| String.fromFloat colorHsl.s
+                    , onChange = AdjustSaturation
+                    , min = 0.0
+                    , max = 1.0
+                    , step = Nothing
+                    , value = colorHsl.s
+                    , thumb = defaultThumb -- TODO: Replace with a saturation icon
+                    }
+                , slider
+                    []
+                    { label = labelRight [] <| text <| String.fromFloat colorHsl.l
+                    , onChange = AdjustLightness
+                    , min = 0.0
+                    , max = 1.0
+                    , step = Nothing
+                    , value = colorHsl.l
+                    , thumb = defaultThumb -- TODO: Replace with a lightness icon
+                    }
+                ]
+
+        Err _ ->
+            column
+                [ width fill
+                , Border.width 1
+                ]
+                [ row
+                    [ centerX
+                    , spacing 10
+                    ]
+                    [ text "#??????"
+                    , text "Copy"
+                    ]
+                , el
+                    [ centerX
+                    , width <| px 100
+                    , height <| px 70
+                    ]
+                    (text "Error")
+                , el [ centerX ] <| text "SaturationSlider"
+                , el [ centerX ] <| text "LightnessSlider"
+                ]
 
 
 pickDyad : Color -> List Color
