@@ -22,7 +22,7 @@ main =
 
 
 type alias Model =
-    { color : Color }
+    { pickedColor : Color }
 
 
 defaultColor : Color
@@ -37,7 +37,7 @@ defaultElmUIColor =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { color = defaultColor }, Cmd.none )
+    ( { pickedColor = defaultColor }, Cmd.none )
 
 
 type Msg
@@ -48,13 +48,13 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case ( msg, model ) of
         ( OnChange colorHex, _ ) ->
-            ( { color =
+            ( { pickedColor =
                     case Color.Convert.hexToColor colorHex of
                         Ok color ->
                             color
 
                         Err _ ->
-                            model.color
+                            model.pickedColor
               }
             , Cmd.none
             )
@@ -111,7 +111,7 @@ viewLeftPane model =
             , html
                 (Html.input
                     [ Attributes.type_ "color"
-                    , Attributes.value <| Color.Convert.colorToHex model.color
+                    , Attributes.value <| Color.Convert.colorToHex model.pickedColor
                     , Events.onInput OnChange
                     ]
                     []
@@ -125,7 +125,7 @@ viewLeftPane model =
             [ text "ColorShemes"
             , text "Filter"
             ]
-        , viewColorScheme "Dyad" <| pickDyad model.color
+        , viewColorScheme "Dyad" <| pickDyad model.pickedColor
         ]
 
 
