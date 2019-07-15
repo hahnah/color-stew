@@ -172,8 +172,8 @@ adjustColor model adjustingElement index value =
                                     Lightness ->
                                         { hsl_ | l = value }
                                 )
-                                    |> (\hsl__ -> Color.hsl (hsl__.h / 360) (hsl__.s / 100) (hsl__.l / 100))
                                     -- Change HSL formart from {h: 0-360[deg], s: 0-100[%], l: 0-100[%]} to {h: 0-1, s: 0-1, l: 0-1}
+                                    |> (\hsl__ -> Color.hsl (hsl__.h / 360) (hsl__.s / 100) (hsl__.l / 100))
                                     |> Ok
 
                             Err message ->
