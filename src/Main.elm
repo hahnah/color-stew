@@ -461,7 +461,7 @@ hsl =
         |. symbol "%)"
 
 
-pickNthNext : Color -> Int -> Int -> Result String Color
+pickNthNext : Color -> Int -> Int -> Result (List DeadEnd) Color
 pickNthNext baseColor n total =
     let
         hueDifferenceUnit =
@@ -502,4 +502,4 @@ pickNthNext baseColor n total =
             Ok <| Color.hsl pickedHue colorHsl.s colorHsl.l
 
         Err _ ->
-            Err "Failed pickNthNext"
+            Err [ DeadEnd 1 1 <| Parser.Problem "Failed pickNthNext" ]
