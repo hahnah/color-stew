@@ -124,7 +124,50 @@ update msg model =
             )
 
         ( AdjustLightness index lightness, _ ) ->
-            Debug.todo "Update lightness for a specific color"
+            let
+                arrayedColors : Array Color
+                arrayedColors =
+                    Array.fromList model.stewedColors
+
+                colorToBeAdjusted : Maybe Color
+                colorToBeAdjusted =
+                    arrayedColors
+                        |> Array.get index
+
+                adjustedColor : Result (List DeadEnd) Color
+                adjustedColor =
+                    case colorToBeAdjusted of
+                        Just color ->
+                            color
+                                |> Color.Convert.colorToCssHsl
+                                |> Parser.run hsl
+                                |> (\resultHsl ->
+                                        case resultHsl of
+                                            Ok hsl_ ->
+                                                { hsl_ | l = lightness }
+                                                    |> (\hsl__ -> Color.hsl (hsl__.h / 360) (hsl__.s / 100) (hsl__.l / 100)) -- Change HSL formart from {h: 0-360[deg], s: 0-100[%], l: 0-100[%]} to {h: 0-1, s: 0-1, l: 0-1}
+                                                    |> Ok
+
+                                            Err message ->
+                                                Err message
+                                   )
+
+                        Nothing ->
+                            Err [ DeadEnd 1 index <| Parser.Problem "Failed to get an element from an array." ]
+
+                adjustedColors : List Color
+                adjustedColors =
+                    case adjustedColor of
+                        Ok color ->
+                            Array.set index color arrayedColors
+                                |> Array.toList
+
+                        Err _ ->
+                            model.stewedColors
+            in
+            ( { model | stewedColors = adjustedColors }
+            , Cmd.none
+            )
 
 
 subscriptions : Model -> Sub Msg
