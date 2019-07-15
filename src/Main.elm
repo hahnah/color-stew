@@ -56,6 +56,12 @@ type Msg
     | AdjustLightness Int Float
 
 
+type HslElement
+    = Hue
+    | Saturation
+    | Lightness
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case ( msg, model ) of
@@ -90,24 +96,7 @@ update msg model =
 
                 adjustedColor : Result (List DeadEnd) Color
                 adjustedColor =
-                    case colorToBeAdjusted of
-                        Just color ->
-                            color
-                                |> Color.Convert.colorToCssHsl
-                                |> Parser.run hsl
-                                |> (\resultHsl ->
-                                        case resultHsl of
-                                            Ok hsl_ ->
-                                                { hsl_ | s = saturation }
-                                                    |> (\hsl__ -> Color.hsl (hsl__.h / 360) (hsl__.s / 100) (hsl__.l / 100)) -- Change HSL formart from {h: 0-360[deg], s: 0-100[%], l: 0-100[%]} to {h: 0-1, s: 0-1, l: 0-1}
-                                                    |> Ok
-
-                                            Err message ->
-                                                Err message
-                                   )
-
-                        Nothing ->
-                            Err [ DeadEnd 1 index <| Parser.Problem "Failed to get an element from an array." ]
+                    adjustColor model Saturation index saturation
 
                 adjustedColors : List Color
                 adjustedColors =
@@ -136,24 +125,7 @@ update msg model =
 
                 adjustedColor : Result (List DeadEnd) Color
                 adjustedColor =
-                    case colorToBeAdjusted of
-                        Just color ->
-                            color
-                                |> Color.Convert.colorToCssHsl
-                                |> Parser.run hsl
-                                |> (\resultHsl ->
-                                        case resultHsl of
-                                            Ok hsl_ ->
-                                                { hsl_ | l = lightness }
-                                                    |> (\hsl__ -> Color.hsl (hsl__.h / 360) (hsl__.s / 100) (hsl__.l / 100)) -- Change HSL formart from {h: 0-360[deg], s: 0-100[%], l: 0-100[%]} to {h: 0-1, s: 0-1, l: 0-1}
-                                                    |> Ok
-
-                                            Err message ->
-                                                Err message
-                                   )
-
-                        Nothing ->
-                            Err [ DeadEnd 1 index <| Parser.Problem "Failed to get an element from an array." ]
+                    adjustColor model Lightness index lightness
 
                 adjustedColors : List Color
                 adjustedColors =
@@ -168,6 +140,48 @@ update msg model =
             ( { model | stewedColors = adjustedColors }
             , Cmd.none
             )
+
+
+adjustColor : Model -> HslElement -> Int -> Float -> Result (List DeadEnd) Color
+adjustColor model adjustingElement index value =
+    let
+        arrayedColors : Array Color
+        arrayedColors =
+            Array.fromList model.stewedColors
+
+        colorToBeAdjusted : Maybe Color
+        colorToBeAdjusted =
+            arrayedColors
+                |> Array.get index
+    in
+    case colorToBeAdjusted of
+        Just color ->
+            color
+                |> Color.Convert.colorToCssHsl
+                |> Parser.run hsl
+                |> (\resultHsl ->
+                        case resultHsl of
+                            Ok hsl_ ->
+                                (case adjustingElement of
+                                    Hue ->
+                                        { hsl_ | h = value }
+
+                                    Saturation ->
+                                        { hsl_ | s = value }
+
+                                    Lightness ->
+                                        { hsl_ | l = value }
+                                )
+                                    |> (\hsl__ -> Color.hsl (hsl__.h / 360) (hsl__.s / 100) (hsl__.l / 100))
+                                    -- Change HSL formart from {h: 0-360[deg], s: 0-100[%], l: 0-100[%]} to {h: 0-1, s: 0-1, l: 0-1}
+                                    |> Ok
+
+                            Err message ->
+                                Err message
+                   )
+
+        Nothing ->
+            Err [ DeadEnd 1 index <| Parser.Problem "Failed to get an element from an array." ]
 
 
 subscriptions : Model -> Sub Msg
