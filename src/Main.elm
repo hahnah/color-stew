@@ -250,6 +250,7 @@ viewLeftPane model =
             , text "Filter"
             ]
         , viewColorScheme "Dyad" <| pickDyad model.pickedColor
+        , viewColorScheme "Triad" <| pickTriad model.pickedColor
         ]
 
 
@@ -399,6 +400,25 @@ pickDyad baseColor =
             baseColor :: [ color ]
 
         Err _ ->
+            [ baseColor ]
+
+
+pickTriad : Color -> List Color
+pickTriad baseColor =
+    let
+        nextColor : Result (List DeadEnd) Color
+        nextColor =
+            pickNthNext baseColor 1 3
+
+        nextColor2 : Result (List DeadEnd) Color
+        nextColor2 =
+            pickNthNext baseColor 2 3
+    in
+    case ( nextColor, nextColor2 ) of
+        ( Ok color1, Ok color2 ) ->
+            baseColor :: color1 :: color2 :: []
+
+        ( _, _ ) ->
             [ baseColor ]
 
 
