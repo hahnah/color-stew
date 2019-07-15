@@ -279,8 +279,11 @@ viewColorSet colors =
 viewColor : Element.Color -> Element msg
 viewColor color =
     el
-        [ Background.color color ]
-        (text "\u{3000}\u{3000}\u{3000}\u{3000}")
+        [ Background.color color
+        , width <| px 56
+        , height <| px 22
+        ]
+        none
 
 
 viewMainPane : Model -> Element Msg
