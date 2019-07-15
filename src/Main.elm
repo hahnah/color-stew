@@ -390,6 +390,7 @@ viewStewedColor index color =
 pickDyad : Color -> List Color
 pickDyad baseColor =
     let
+        nextColor : Result (List DeadEnd) Color
         nextColor =
             pickNthNext baseColor 1 2
     in
@@ -464,14 +465,17 @@ hsl =
 pickNthNext : Color -> Int -> Int -> Result (List DeadEnd) Color
 pickNthNext baseColor n total =
     let
+        hueDifferenceUnit : Float
         hueDifferenceUnit =
             1 / toFloat total
 
+        baseColorHslWithDegreeHue : Result (List DeadEnd) Hsl
         baseColorHslWithDegreeHue =
             baseColor
                 |> Color.Convert.colorToCssHsl
                 |> Parser.run hsl
 
+        baseColorHsl : Result (List DeadEnd) Hsl
         baseColorHsl =
             case baseColorHslWithDegreeHue of
                 Ok colorHsl ->
