@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import Array exposing (Array)
 import Browser
 import Color exposing (Color)
 import Color.Convert exposing (colorToCssHsl, colorToCssRgb, colorToHex)
@@ -7,11 +8,11 @@ import Element exposing (Element, centerX, column, el, fill, height, html, htmlA
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
-import Element.Input exposing (defaultThumb, labelRight, slider)
+import Element.Input exposing (defaultThumb, labelHidden, slider)
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
-import Parser exposing ((|.), (|=), Parser, float, spaces, succeed, symbol)
+import Parser exposing ((|.), (|=), DeadEnd, Parser, float, spaces, succeed, symbol)
 
 
 main =
@@ -51,8 +52,8 @@ init _ =
 type Msg
     = PickColor String
     | SelectScheme (List Color)
-    | AdjustSaturation Float
-    | AdjustLightness Float
+    | AdjustSaturation Int Float
+    | AdjustLightness Int Float
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -76,10 +77,53 @@ update msg model =
             , Cmd.none
             )
 
-        ( AdjustSaturation saturation, _ ) ->
-            Debug.todo "Update saturation for a specific color"
+        ( AdjustSaturation index saturation, _ ) ->
+            let
+                arrayedColors : Array Color
+                arrayedColors =
+                    Array.fromList model.stewedColors
 
-        ( AdjustLightness lightness, _ ) ->
+                colorToBeAdjusted : Maybe Color
+                colorToBeAdjusted =
+                    arrayedColors
+                        |> Array.get index
+
+                adjustedColor : Result (List DeadEnd) Color
+                adjustedColor =
+                    case colorToBeAdjusted of
+                        Just color ->
+                            color
+                                |> Color.Convert.colorToCssHsl
+                                |> Parser.run hsl
+                                |> (\resultHsl ->
+                                        case resultHsl of
+                                            Ok hsl_ ->
+                                                { hsl_ | s = saturation }
+                                                    {- Change HSL formart from {h: 0-360[deg], s: 0-100[%], l: 0-100[%]} to {h: 0-1, s: 0-1, l: 0-1} -} |> (\hsl__ -> Color.hsl (hsl__.h / 360) (hsl__.s / 100) (hsl__.l / 100))
+                                                    |> Ok
+
+                                            Err message ->
+                                                Err message
+                                   )
+
+                        Nothing ->
+                            Err [ DeadEnd 1 index <| Parser.Problem "Failed to get an element from an array." ]
+
+                adjustedColors : List Color
+                adjustedColors =
+                    case adjustedColor of
+                        Ok color ->
+                            Array.set index color arrayedColors
+                                |> Array.toList
+
+                        Err _ ->
+                            model.stewedColors
+            in
+            ( { model | stewedColors = adjustedColors }
+            , Cmd.none
+            )
+
+        ( AdjustLightness index lightness, _ ) ->
             Debug.todo "Update lightness for a specific color"
 
 
@@ -194,14 +238,18 @@ viewMainPane model =
         [ el [ centerX ] <| text "PREVIEW AREA"
         , row
             [ width fill ]
-            (List.map viewStewedColor model.stewedColors)
+            (model.stewedColors
+                |> Array.fromList
+                |> Array.indexedMap viewStewedColor
+                |> Array.toList
+            )
         ]
 
 
-viewStewedColor : Color -> Element Msg
-viewStewedColor color =
+viewStewedColor : Int -> Color -> Element Msg
+viewStewedColor index color =
     let
-        colorHsl_ : Result (List Parser.DeadEnd) Hsl
+        colorHsl_ : Result (List DeadEnd) Hsl
         colorHsl_ =
             color
                 |> Color.Convert.colorToCssHsl
@@ -227,26 +275,36 @@ viewStewedColor color =
                     , Background.color <| toElmUIColor color
                     ]
                     Element.none
-                , slider
-                    []
-                    { label = labelRight [] <| text <| String.fromFloat colorHsl.s
-                    , onChange = AdjustSaturation
-                    , min = 0.0
-                    , max = 1.0
-                    , step = Nothing
-                    , value = colorHsl.s
-                    , thumb = defaultThumb -- TODO: Replace with a saturation icon
-                    }
-                , slider
-                    []
-                    { label = labelRight [] <| text <| String.fromFloat colorHsl.l
-                    , onChange = AdjustLightness
-                    , min = 0.0
-                    , max = 1.0
-                    , step = Nothing
-                    , value = colorHsl.l
-                    , thumb = defaultThumb -- TODO: Replace with a lightness icon
-                    }
+                , el
+                    [ centerX
+                    , width <| px 100
+                    ]
+                    (slider
+                        []
+                        { label = labelHidden <| String.fromFloat colorHsl.s
+                        , onChange = AdjustSaturation index
+                        , min = 0
+                        , max = 100
+                        , step = Nothing
+                        , value = colorHsl.s
+                        , thumb = defaultThumb -- TODO: Replace with a saturation icon
+                        }
+                    )
+                , el
+                    [ centerX
+                    , width <| px 100
+                    ]
+                    (slider
+                        []
+                        { label = labelHidden <| String.fromFloat colorHsl.l
+                        , onChange = AdjustLightness index
+                        , min = 0
+                        , max = 100
+                        , step = Nothing
+                        , value = colorHsl.l
+                        , thumb = defaultThumb -- TODO: Replace with a lightness icon
+                        }
+                    )
                 ]
 
         Err _ ->
@@ -289,7 +347,7 @@ pickDyad baseColor =
 toElmUIColor : Color -> Element.Color
 toElmUIColor color =
     let
-        colorRgb_ : Result (List Parser.DeadEnd) Rgb
+        colorRgb_ : Result (List DeadEnd) Rgb
         colorRgb_ =
             color
                 |> colorToCssRgb
