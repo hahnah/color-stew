@@ -388,38 +388,31 @@ viewStewedColor index color =
                 ]
 
 
+pickPolyad : Color -> Int -> List Color
+pickPolyad baseColor dimension =
+    List.range 0 (dimension - 1)
+        |> List.map (pickNthNext baseColor dimension)
+        |> List.foldr
+            (\resultColor ->
+                \acc ->
+                    case resultColor of
+                        Ok color ->
+                            color :: acc
+
+                        Err _ ->
+                            acc
+            )
+            []
+
+
 pickDyad : Color -> List Color
 pickDyad baseColor =
-    let
-        nextColor : Result (List DeadEnd) Color
-        nextColor =
-            pickNthNext baseColor 1 2
-    in
-    case nextColor of
-        Ok color ->
-            baseColor :: [ color ]
-
-        Err _ ->
-            [ baseColor ]
+    pickPolyad baseColor 2
 
 
 pickTriad : Color -> List Color
 pickTriad baseColor =
-    let
-        nextColor : Result (List DeadEnd) Color
-        nextColor =
-            pickNthNext baseColor 1 3
-
-        nextColor2 : Result (List DeadEnd) Color
-        nextColor2 =
-            pickNthNext baseColor 2 3
-    in
-    case ( nextColor, nextColor2 ) of
-        ( Ok color1, Ok color2 ) ->
-            baseColor :: color1 :: color2 :: []
-
-        ( _, _ ) ->
-            [ baseColor ]
+    pickPolyad baseColor 3
 
 
 toElmUIColor : Color -> Element.Color
@@ -483,7 +476,7 @@ hsl =
 
 
 pickNthNext : Color -> Int -> Int -> Result (List DeadEnd) Color
-pickNthNext baseColor n total =
+pickNthNext baseColor total n =
     let
         hueDifferenceUnit : Float
         hueDifferenceUnit =
