@@ -4,16 +4,29 @@ import Svg exposing (Svg, g, metadata, path, svg)
 import Svg.Attributes exposing (d, fill, height, preserveAspectRatio, stroke, transform, viewBox, width)
 
 
-logo : Svg msg
-logo =
+logo : Float -> Svg msg
+logo width_ =
+    let
+        height_ : Float
+        height_ =
+            originalSize.height * width_ / originalSize.width
+
+        scaleX : Float
+        scaleX =
+            0.1 * width_ / originalSize.width
+
+        scaleY : Float
+        scaleY =
+            negate scaleX
+    in
     svg
-        [ width "1368"
-        , height "926"
-        , viewBox "0 0 1368.000000 926.000000"
+        [ width <| String.fromFloat width_
+        , height <| String.fromFloat height_
+        , viewBox <| "0 0 " ++ String.fromFloat width_ ++ " " ++ String.fromFloat height_
         , preserveAspectRatio "xMidYMid meet"
         ]
         [ g
-            [ transform "translate(0.000000,926.000000) scale(0.100000,-0.100000)"
+            [ transform <| "translate(0," ++ String.fromFloat height_ ++ ") scale(" ++ String.fromFloat scaleX ++ "," ++ String.fromFloat scaleY ++ ")"
             , fill "#000000"
             , stroke "none"
             ]
@@ -31,3 +44,10 @@ logo =
                 []
             ]
         ]
+
+
+originalSize : { width : Float, height : Float }
+originalSize =
+    { width = 1368
+    , height = 926
+    }

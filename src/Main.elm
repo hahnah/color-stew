@@ -303,7 +303,7 @@ viewMainPane model =
         [ el
             [ centerX
             ]
-            (html Logo.logo)
+            (html <| Logo.logo 400)
         , row
             [ width fill ]
             (model.stewedColors
