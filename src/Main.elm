@@ -12,6 +12,7 @@ import Element.Input exposing (defaultThumb, labelHidden, slider)
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
+import Logo
 import Parser exposing ((|.), (|=), DeadEnd, Parser, float, spaces, succeed, symbol)
 
 
@@ -299,7 +300,10 @@ viewMainPane model =
         [ width fill
         , Border.width 1
         ]
-        [ el [ centerX ] <| text "PREVIEW AREA"
+        [ el
+            [ centerX
+            ]
+            (html Logo.logo)
         , row
             [ width fill ]
             (model.stewedColors
