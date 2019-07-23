@@ -1,11 +1,13 @@
 module Logo exposing (logo)
 
+import Color exposing (Color)
+import Color.Convert exposing (colorToHex)
 import Svg exposing (Svg, g, metadata, path, svg)
 import Svg.Attributes exposing (d, fill, height, preserveAspectRatio, stroke, transform, viewBox, width)
 
 
-logo : Float -> Svg msg
-logo width_ =
+logo : Float -> Color -> Svg msg
+logo width_ color =
     let
         height_ : Float
         height_ =
@@ -27,7 +29,7 @@ logo width_ =
         ]
         [ g
             [ transform <| "translate(0," ++ String.fromFloat height_ ++ ") scale(" ++ String.fromFloat scaleX ++ "," ++ String.fromFloat scaleY ++ ")"
-            , fill "#000000"
+            , fill <| colorToHex color
             , stroke "none"
             ]
             [ path
