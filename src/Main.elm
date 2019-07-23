@@ -289,13 +289,6 @@ viewColor color =
 
 viewMainPane : Model -> Element Msg
 viewMainPane model =
-    let
-        stewedColor : Color
-        stewedColor =
-            Color.darkPurple
-
-        -- provisional
-    in
     column
         [ width fill
         , Border.width 1
