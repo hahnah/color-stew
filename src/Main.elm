@@ -295,6 +295,14 @@ viewMainPane model =
             model.stewedColors
                 |> List.head
                 |> Maybe.withDefault Color.black
+        
+        backgroundColor : Color
+        backgroundColor =
+            model.stewedColors
+                |> List.tail
+                |> Maybe.withDefault []
+                |> List.head
+                |> Maybe.withDefault Color.white
     in
     column
         [ width fill
@@ -302,6 +310,7 @@ viewMainPane model =
         ]
         [ el
             [ centerX
+            , Background.color <| toElmUIColor backgroundColor
             ]
             (html <| Logo.logo 400 logoColor)
         , row
