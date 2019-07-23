@@ -289,6 +289,13 @@ viewColor color =
 
 viewMainPane : Model -> Element Msg
 viewMainPane model =
+    let
+        logoColor : Color
+        logoColor =
+            model.stewedColors
+                |> List.head
+                |> Maybe.withDefault Color.black
+    in
     column
         [ width fill
         , Border.width 1
@@ -296,7 +303,7 @@ viewMainPane model =
         [ el
             [ centerX
             ]
-            (html <| Logo.logo 400 Color.brown)
+            (html <| Logo.logo 400 logoColor)
         , row
             [ width fill ]
             (model.stewedColors
