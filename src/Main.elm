@@ -4,7 +4,7 @@ import Array exposing (Array)
 import Browser
 import Color exposing (Color)
 import Color.Convert exposing (colorToCssHsl, colorToCssRgb, colorToHex)
-import Element exposing (Element, centerX, column, el, fill, height, html, htmlAttribute, layout, none, paddingEach, px, row, spacing, text, width)
+import Element exposing (Element, alignTop, centerX, column, el, fill, height, html, htmlAttribute, layout, none, paddingEach, px, row, spacing, text, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
@@ -194,31 +194,16 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     layout
-        []
-        (column
-            [ width fill ]
-            [ viewHeader
-            , row
-                [ width fill
-                , height fill
-                ]
-                [ viewLeftPane model
-                , viewMainPane model
-                ]
+        [ width fill
+        , alignTop
+        ]
+        (row
+            [ width fill
+            ]
+            [ viewLeftPane model
+            , viewMainPane model
             ]
         )
-
-
-viewHeader : Element msg
-viewHeader =
-    row
-        [ width fill
-        , spacing 10
-        , Border.width 1
-        ]
-        [ el [ centerX ] <| text "Logo"
-        , el [ centerX ] <| text "ColorStew"
-        ]
 
 
 viewLeftPane : Model -> Element Msg
