@@ -318,14 +318,14 @@ viewPreview model =
             model.stewedColors
                 |> List.drop 3
                 |> List.head
-                |> Maybe.withDefault Color.black
+                |> Maybe.withDefault backgroundColor
 
         backgroundColor2 : Color
         backgroundColor2 =
             model.stewedColors
                 |> List.drop 4
                 |> List.head
-                |> Maybe.withDefault backgroundColor
+                |> Maybe.withDefault logoColor
     in
     column
         [ centerX
