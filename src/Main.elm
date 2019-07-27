@@ -4,10 +4,11 @@ import Array exposing (Array)
 import Browser
 import Color exposing (Color)
 import Color.Convert exposing (colorToCssHsl, colorToCssRgb, colorToHex)
-import Element exposing (Element, centerX, column, el, fill, height, html, htmlAttribute, layout, none, px, row, spacing, text, width)
+import Element exposing (Element, centerX, column, el, fill, height, html, htmlAttribute, layout, none, paddingEach, px, row, spacing, text, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
+import Element.Font as Font
 import Element.Input exposing (defaultThumb, labelHidden, slider)
 import Html exposing (Html)
 import Html.Attributes as Attributes
@@ -320,12 +321,55 @@ viewPreview model =
                 |> Maybe.withDefault []
                 |> List.head
                 |> Maybe.withDefault Color.white
+
+        titleColor : Color
+        titleColor =
+            model.stewedColors
+                |> List.drop 2
+                |> List.head
+                |> Maybe.withDefault logoColor
+
+        textColor : Color
+        textColor =
+            model.stewedColors
+                |> List.drop 3
+                |> List.head
+                |> Maybe.withDefault Color.black
+
+        backgroundColor2 : Color
+        backgroundColor2 =
+            model.stewedColors
+                |> List.drop 4
+                |> List.head
+                |> Maybe.withDefault backgroundColor
     in
-    el
+    column
         [ centerX
         , Background.color <| toElmUIColor backgroundColor
         ]
-        (html <| Logo.logo 400 logoColor)
+        [ el
+            [ Font.color <| toElmUIColor titleColor
+            , Font.size 30
+            , centerX
+            , paddingEach
+                { top = 10
+                , right = 0
+                , bottom = 0
+                , left = 0
+                }
+            ]
+            (text "Color Stew")
+        , html <| Logo.logo 400 logoColor
+        , el
+            [ Background.color <| toElmUIColor backgroundColor2
+            ]
+            (el
+                [ Font.color <| toElmUIColor textColor
+                , centerX
+                ]
+                (text "Color Stew is a color combination experiment tool.")
+            )
+        ]
 
 
 viewStewedColor : Int -> Color -> Element Msg
