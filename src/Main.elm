@@ -367,10 +367,10 @@ viewPreview model =
             (html <| Logo.logo 400 logoColor)
         , el
             [ Background.color <| toElmUIColor backgroundColor2
+            , centerX
             ]
             (el
                 [ Font.color <| toElmUIColor textColor
-                , centerX
                 ]
                 (text "Color Stew is a color combination experiment tool.")
             )
