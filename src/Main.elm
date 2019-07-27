@@ -289,30 +289,11 @@ viewColor color =
 
 viewMainPane : Model -> Element Msg
 viewMainPane model =
-    let
-        logoColor : Color
-        logoColor =
-            model.stewedColors
-                |> List.head
-                |> Maybe.withDefault Color.black
-        
-        backgroundColor : Color
-        backgroundColor =
-            model.stewedColors
-                |> List.tail
-                |> Maybe.withDefault []
-                |> List.head
-                |> Maybe.withDefault Color.white
-    in
     column
         [ width fill
         , Border.width 1
         ]
-        [ el
-            [ centerX
-            , Background.color <| toElmUIColor backgroundColor
-            ]
-            (html <| Logo.logo 400 logoColor)
+        [ viewPreview model
         , row
             [ width fill ]
             (model.stewedColors
@@ -321,6 +302,30 @@ viewMainPane model =
                 |> Array.toList
             )
         ]
+
+
+viewPreview : Model -> Element Msg
+viewPreview model =
+    let
+        logoColor : Color
+        logoColor =
+            model.stewedColors
+                |> List.head
+                |> Maybe.withDefault Color.black
+
+        backgroundColor : Color
+        backgroundColor =
+            model.stewedColors
+                |> List.tail
+                |> Maybe.withDefault []
+                |> List.head
+                |> Maybe.withDefault Color.white
+    in
+    el
+        [ centerX
+        , Background.color <| toElmUIColor backgroundColor
+        ]
+        (html <| Logo.logo 400 logoColor)
 
 
 viewStewedColor : Int -> Color -> Element Msg
