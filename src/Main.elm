@@ -4,7 +4,7 @@ import Array exposing (Array)
 import Browser
 import Color exposing (Color)
 import Color.Convert exposing (colorToCssHsl, colorToCssRgb, colorToHex)
-import Element exposing (Element, alignTop, centerX, column, el, fill, height, html, htmlAttribute, layout, none, paddingEach, px, row, spacing, text, width)
+import Element exposing (Element, alignTop, centerX, column, el, fill, height, html, htmlAttribute, layout, none, paddingEach, paragraph, px, row, spacing, text, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
@@ -357,7 +357,12 @@ viewPreview model =
                 [ Font.color <| toElmUIColor textColor
                 , centerX
                 ]
-                (text "Color Stew is a color combination experiment tool.")
+                (paragraph
+                    []
+                    [ text "Color Stew is a color combination experiment tool."
+                    , text " Text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text."
+                    ]
+                )
             )
         ]
 
