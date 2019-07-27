@@ -255,7 +255,6 @@ viewLeftPane model =
         , viewColorScheme "Triad" <| pickTriad model.pickedColor
         , viewColorScheme "Tetrad" <| pickTetrad model.pickedColor
         , viewColorScheme "Pentad" <| pickPentad model.pickedColor
-        , viewColorScheme "Hexad" <| pickHexad model.pickedColor
         ]
 
 
@@ -496,11 +495,6 @@ pickTetrad baseColor =
 pickPentad : Color -> List Color
 pickPentad baseColor =
     pickPolyad baseColor 5
-
-
-pickHexad : Color -> List Color
-pickHexad baseColor =
-    pickPolyad baseColor 6
 
 
 toElmUIColor : Color -> Element.Color
