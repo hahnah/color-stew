@@ -346,6 +346,7 @@ viewPreview model =
     column
         [ centerX
         , Background.color <| toElmUIColor backgroundColor
+        , width fill
         ]
         [ el
             [ Font.color <| toElmUIColor titleColor
@@ -359,7 +360,11 @@ viewPreview model =
                 }
             ]
             (text "Color Stew")
-        , html <| Logo.logo 400 logoColor
+        , el
+            [ Font.color <| toElmUIColor backgroundColor
+            , centerX
+            ]
+            (html <| Logo.logo 400 logoColor)
         , el
             [ Background.color <| toElmUIColor backgroundColor2
             ]
