@@ -4,7 +4,8 @@ import Array exposing (Array)
 import Browser
 import Color exposing (Color)
 import Color.Convert exposing (colorToCssHsl, colorToCssRgb, colorToHex)
-import Element exposing (Element, alignTop, centerX, column, el, fill, height, html, htmlAttribute, layout, none, paddingEach, paragraph, px, row, spacing, text, width)
+import DnDList
+import Element exposing (Element, alignTop, centerX, column, el, fill, height, html, htmlAttribute, inFront, layout, none, paddingEach, paragraph, px, row, spacing, text, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
@@ -29,7 +30,22 @@ main =
 type alias Model =
     { pickedColor : Color
     , stewedColors : List Color
+    , dnd : DnDList.Model -- dnd stands for Drag and Drop
     }
+
+
+dndSystem : DnDList.System Color Msg
+dndSystem =
+    let
+        dndConfig : DnDList.Config Color
+        dndConfig =
+            { beforeUpdate = \_ _ list -> list
+            , movement = DnDList.Free
+            , listen = DnDList.OnDrag
+            , operation = DnDList.Rotate
+            }
+    in
+    DnDList.create dndConfig DragAndDrop
 
 
 defaultColor : Color
@@ -46,6 +62,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pickedColor = defaultColor
       , stewedColors = []
+      , dnd = dndSystem.model
       }
     , Cmd.none
     )
@@ -56,6 +73,8 @@ type Msg
     | SelectScheme (List Color)
     | AdjustSaturation Int Float
     | AdjustLightness Int Float
+    | DragAndDrop DnDList.Msg
+    | None Float
 
 
 type HslElement
@@ -143,6 +162,18 @@ update msg model =
             , Cmd.none
             )
 
+        ( DragAndDrop dndMsg, _ ) ->
+            let
+                ( dnd, colors ) =
+                    dndSystem.update dndMsg model.dnd model.stewedColors
+            in
+            ( { model | stewedColors = colors, dnd = dnd }
+            , dndSystem.commands model.dnd
+            )
+
+        ( None _, _ ) ->
+            ( model, Cmd.none )
+
 
 adjustColor : Model -> HslElement -> Int -> Float -> Result (List DeadEnd) Color
 adjustColor model adjustingElement index value =
@@ -188,7 +219,7 @@ adjustColor model adjustingElement index value =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    dndSystem.subscriptions model.dnd
 
 
 view : Model -> Html Msg
@@ -196,6 +227,7 @@ view model =
     layout
         [ width fill
         , alignTop
+        , inFront (viewGhostStewedColor model.dnd model.stewedColors)
         ]
         (row
             [ width fill
@@ -282,9 +314,7 @@ viewMainPane model =
         , row
             [ width fill ]
             (model.stewedColors
-                |> Array.fromList
-                |> Array.indexedMap viewStewedColor
-                |> Array.toList
+                |> List.indexedMap (viewRealStewedColor model.dnd)
             )
         ]
 
@@ -367,8 +397,51 @@ viewPreview model =
         ]
 
 
-viewStewedColor : Int -> Color -> Element Msg
-viewStewedColor index color =
+viewRealStewedColor : DnDList.Model -> Int -> Color -> Element Msg
+viewRealStewedColor dndModel index color =
+    let
+        colorId : String
+        colorId =
+            "stewedColor-" ++ String.fromInt index
+
+        attributesForDndHandling : List (Element.Attribute Msg)
+        attributesForDndHandling =
+            case dndSystem.info dndModel of
+                Just { dragIndex } ->
+                    if dragIndex /= index then
+                        htmlAttribute (Attributes.id colorId) :: List.map htmlAttribute (dndSystem.dropEvents index colorId)
+
+                    else
+                        [ htmlAttribute (Attributes.id colorId) ]
+
+                Nothing ->
+                    htmlAttribute (Attributes.id colorId) :: List.map htmlAttribute (dndSystem.dragEvents index colorId)
+    in
+    viewStewedColorWithSurroundings attributesForDndHandling index color
+
+
+viewGhostStewedColor : DnDList.Model -> List Color -> Element.Element Msg
+viewGhostStewedColor dndModel colors =
+    let
+        maybeDragColor : Maybe Color
+        maybeDragColor =
+            dndSystem.info dndModel
+                |> Maybe.andThen (\{ dragIndex } -> colors |> List.drop dragIndex |> List.head)
+
+        attributesForDndHandling : List (Element.Attribute Msg)
+        attributesForDndHandling =
+            List.map htmlAttribute (dndSystem.ghostStyles dndModel)
+    in
+    case maybeDragColor of
+        Just color ->
+            viewStewedColor attributesForDndHandling color
+
+        Nothing ->
+            Element.none
+
+
+viewStewedColorWithSurroundings : List (Element.Attribute Msg) -> Int -> Color -> Element Msg
+viewStewedColorWithSurroundings attributesForDndHandling index color =
     let
         colorHsl_ : Result (List DeadEnd) Hsl
         colorHsl_ =
@@ -389,13 +462,7 @@ viewStewedColor index color =
                     [ text <| Color.Convert.colorToHex color
                     , text "Copy"
                     ]
-                , el
-                    [ centerX
-                    , width <| px 100
-                    , height <| px 70
-                    , Background.color <| toElmUIColor color
-                    ]
-                    Element.none
+                , viewStewedColor attributesForDndHandling color
                 , el
                     [ centerX
                     , width <| px 100
@@ -449,6 +516,20 @@ viewStewedColor index color =
                 , el [ centerX ] <| text "SaturationSlider"
                 , el [ centerX ] <| text "LightnessSlider"
                 ]
+
+
+viewStewedColor : List (Element.Attribute Msg) -> Color -> Element Msg
+viewStewedColor attributesForDndHandling color =
+    el
+        (List.append
+            [ centerX
+            , width <| px 100
+            , height <| px 70
+            , Background.color <| toElmUIColor color
+            ]
+            attributesForDndHandling
+        )
+        Element.none
 
 
 pickPolyad : Color -> Int -> List Color
