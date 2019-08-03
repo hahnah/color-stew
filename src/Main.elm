@@ -87,8 +87,8 @@ type HslElement
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case ( msg, model ) of
-        ( PickColor colorHex, _ ) ->
+    case msg of
+        PickColor colorHex ->
             ( { model
                 | pickedColor =
                     case Color.Convert.hexToColor colorHex of
@@ -101,12 +101,12 @@ update msg model =
             , Cmd.none
             )
 
-        ( SelectScheme schemeColors, _ ) ->
+        SelectScheme schemeColors ->
             ( { model | stewedColors = schemeColors }
             , Cmd.none
             )
 
-        ( AdjustSaturation index saturation, _ ) ->
+        AdjustSaturation index saturation ->
             let
                 arrayedColors : Array Color
                 arrayedColors =
@@ -135,7 +135,7 @@ update msg model =
             , Cmd.none
             )
 
-        ( AdjustLightness index lightness, _ ) ->
+        AdjustLightness index lightness ->
             let
                 arrayedColors : Array Color
                 arrayedColors =
@@ -164,7 +164,7 @@ update msg model =
             , Cmd.none
             )
 
-        ( DragAndDrop dndMsg, _ ) ->
+        DragAndDrop dndMsg ->
             let
                 ( dnd, colors ) =
                     dndSystem.update dndMsg model.dnd model.stewedColors
@@ -173,10 +173,10 @@ update msg model =
             , dndSystem.commands model.dnd
             )
 
-        ( CopyColorCode colorCode, _ ) ->
+        CopyColorCode colorCode ->
             ( model, copyString colorCode )
 
-        ( None _, _ ) ->
+        None _ ->
             ( model, Cmd.none )
 
 
