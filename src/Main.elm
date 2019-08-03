@@ -1,4 +1,4 @@
-module Main exposing (main)
+port module Main exposing (main)
 
 import Array exposing (Array)
 import Browser
@@ -10,7 +10,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick)
 import Element.Font as Font
-import Element.Input exposing (defaultThumb, labelHidden, slider)
+import Element.Input exposing (button, defaultThumb, labelHidden, slider)
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
@@ -75,6 +75,7 @@ type Msg
     | AdjustSaturation Int Float
     | AdjustLightness Int Float
     | DragAndDrop DnDList.Msg
+    | CopyColorCode String
     | None Float
 
 
@@ -172,6 +173,9 @@ update msg model =
             , dndSystem.commands model.dnd
             )
 
+        ( CopyColorCode colorCode, _ ) ->
+            ( model, copyString colorCode )
+
         ( None _, _ ) ->
             ( model, Cmd.none )
 
@@ -221,6 +225,9 @@ adjustColor model adjustingElement index value =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     dndSystem.subscriptions model.dnd
+
+
+port copyString : String -> Cmd msg
 
 
 view : Model -> Html Msg
@@ -461,7 +468,11 @@ viewStewedColorWithSurroundings attributesForDndHandling index color =
                     , spacing 10
                     ]
                     [ text <| Color.Convert.colorToHex color
-                    , text "Copy"
+                    , button
+                        []
+                        { onPress = Just <| CopyColorCode <| Color.Convert.colorToHex color
+                        , label = text "📋"
+                        }
                     ]
                 , viewStewedColor attributesForDndHandling color
                 , el
