@@ -5,3 +5,5 @@
 elm-stuff
 repl-temp-*
 
+# Elm outputs
+main.js
