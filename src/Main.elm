@@ -18,6 +18,7 @@ import Logo
 import Parser exposing ((|.), (|=), DeadEnd, Parser, float, spaces, succeed, symbol)
 
 
+main : Program () Model Msg
 main =
     Browser.element
         { init = init
