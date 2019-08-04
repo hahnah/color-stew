@@ -278,6 +278,7 @@ viewLeftPane model =
             ]
         , viewColorScheme "Dyad" <| pickDyad model.pickedColor
         , viewColorScheme "Triad" <| pickTriad model.pickedColor
+        , viewColorScheme "Split Complementary" <| pickSplitComplementary model.pickedColor
         , viewColorScheme "Tetrad" <| pickTetrad model.pickedColor
         , viewColorScheme "Pentad" <| pickPentad model.pickedColor
         ]
@@ -579,6 +580,22 @@ pickTetrad baseColor =
 pickPentad : Color -> List Color
 pickPentad baseColor =
     pickPolyad baseColor 5
+
+
+pickSplitComplementary : Color -> List Color
+pickSplitComplementary color =
+    case ( pickNthNext color 12 5, pickNthNext color 12 7 ) of
+        ( Ok color1, Ok color2 ) ->
+            color :: color1 :: color2 :: []
+
+        ( Ok color1, Err _ ) ->
+            color :: color1 :: []
+
+        ( Err _, Ok color2 ) ->
+            color :: color2 :: []
+
+        ( Err _, Err _ ) ->
+            color :: []
 
 
 toElmUIColor : Color -> Element.Color
