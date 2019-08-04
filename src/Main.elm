@@ -353,19 +353,19 @@ viewPreview model =
                 |> List.head
                 |> Maybe.withDefault logoColor
 
-        textColor : Color
-        textColor =
-            model.stewedColors
-                |> List.drop 3
-                |> List.head
-                |> Maybe.withDefault baseColor
-
         textBackgroundColor : Color
         textBackgroundColor =
             model.stewedColors
-                |> List.drop 4
+                |> List.drop 3
                 |> List.head
                 |> Maybe.withDefault logoColor
+
+        textColor : Color
+        textColor =
+            model.stewedColors
+                |> List.drop 4
+                |> List.head
+                |> Maybe.withDefault baseColor
     in
     column
         [ centerX
