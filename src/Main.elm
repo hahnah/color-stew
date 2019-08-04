@@ -338,8 +338,8 @@ viewPreview model =
                 |> List.head
                 |> Maybe.withDefault Color.black
 
-        backgroundColor : Color
-        backgroundColor =
+        baseColor : Color
+        baseColor =
             model.stewedColors
                 |> List.tail
                 |> Maybe.withDefault []
@@ -358,10 +358,10 @@ viewPreview model =
             model.stewedColors
                 |> List.drop 3
                 |> List.head
-                |> Maybe.withDefault backgroundColor
+                |> Maybe.withDefault baseColor
 
-        backgroundColor2 : Color
-        backgroundColor2 =
+        textBackgroundColor : Color
+        textBackgroundColor =
             model.stewedColors
                 |> List.drop 4
                 |> List.head
@@ -369,7 +369,7 @@ viewPreview model =
     in
     column
         [ centerX
-        , Background.color <| toElmUIColor backgroundColor
+        , Background.color <| toElmUIColor baseColor
         , width fill
         ]
         [ el
@@ -385,12 +385,12 @@ viewPreview model =
             ]
             (text "Color Stew")
         , el
-            [ Font.color <| toElmUIColor backgroundColor
+            [ Font.color <| toElmUIColor baseColor
             , centerX
             ]
             (html <| Logo.logo 400 logoColor)
         , el
-            [ Background.color <| toElmUIColor backgroundColor2
+            [ Background.color <| toElmUIColor textBackgroundColor
             , width fill
             ]
             (el
