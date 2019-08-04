@@ -281,6 +281,7 @@ viewLeftPane model =
         , viewColorScheme "Split Complementary" <| pickSplitComplementary model.pickedColor
         , viewColorScheme "Tetrad" <| pickTetrad model.pickedColor
         , viewColorScheme "Pentad" <| pickPentad model.pickedColor
+        , viewColorScheme "MonoChromatic" <| pickMonochromatic model.pickedColor
         ]
 
 
@@ -596,6 +597,35 @@ pickSplitComplementary color =
 
         ( Err _, Err _ ) ->
             color :: []
+
+
+pickMonochromatic : Color -> List Color
+pickMonochromatic baseColor =
+    let
+        baseColorHsl : Result (List DeadEnd) Hsl
+        baseColorHsl =
+            baseColor
+                |> colorToCssHsl
+                |> Parser.run hsl
+
+        makeOverflow : Float -> Float -> Float
+        makeOverflow num max =
+            if num <= max then
+                num
+
+            else
+                num - max
+    in
+    case baseColorHsl of
+        Ok colorHsl ->
+            List.range 0 4
+                |> List.map toFloat
+                |> List.map (\index -> Hsl (colorHsl.h / 360) (colorHsl.s / 100) (makeOverflow (colorHsl.l / 100 + index * 0.2) 1))
+                |> List.sortBy .l
+                |> List.map (\hsl_ -> Color.hsl hsl_.h hsl_.s hsl_.l)
+
+        Err _ ->
+            []
 
 
 toElmUIColor : Color -> Element.Color
