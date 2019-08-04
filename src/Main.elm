@@ -514,13 +514,11 @@ viewStewedColorWithSurroundings attributesForDndHandling index color =
                 [ width fill
                 , Border.width 1
                 ]
-                [ row
+                [ el
                     [ centerX
                     , spacing 10
                     ]
-                    [ text "#??????"
-                    , text "Copy"
-                    ]
+                    (text "#??????")
                 , el
                     [ centerX
                     , width <| px 100
