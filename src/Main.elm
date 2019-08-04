@@ -277,9 +277,14 @@ viewLeftPane model =
             , text "Filter"
             ]
         , viewColorScheme "Dyad" <| pickDyad model.pickedColor
+        , viewColorScheme "Dyad + Dark & Light" <| pickDyad model.pickedColor ++ [ pickDarkColor model.pickedColor ] ++ [ pickLightColor model.pickedColor ]
         , viewColorScheme "Triad" <| pickTriad model.pickedColor
+        , viewColorScheme "Triad + Dark & Light" <| pickTriad model.pickedColor ++ [ pickDarkColor model.pickedColor ] ++ [ pickLightColor model.pickedColor ]
         , viewColorScheme "Split Complementary" <| pickSplitComplementary model.pickedColor
+        , viewColorScheme "Split Complementary + Dark & Light" <| pickSplitComplementary model.pickedColor ++ [ pickDarkColor model.pickedColor ] ++ [ pickLightColor model.pickedColor ]
         , viewColorScheme "Tetrad" <| pickTetrad model.pickedColor
+        , viewColorScheme "Tetrad + Dark" <| pickTetrad model.pickedColor ++ [ pickDarkColor model.pickedColor ]
+        , viewColorScheme "Tetrad + Light" <| pickTetrad model.pickedColor ++ [ pickLightColor model.pickedColor ]
         , viewColorScheme "Pentad" <| pickPentad model.pickedColor
         , viewColorScheme "MonoChromatic" <| pickMonochromatic model.pickedColor
         ]
@@ -559,6 +564,42 @@ pickPolyad baseColor dimension =
                             acc
             )
             []
+
+
+pickDarkColor : Color -> Color
+pickDarkColor baseColor =
+    let
+        colorHsl : Result (List DeadEnd) Hsl
+        colorHsl =
+            baseColor
+                |> colorToCssHsl
+                |> Parser.run hsl
+    in
+    case colorHsl of
+        Ok hsl_ ->
+            min ((hsl_.l / 100) ^ 2) 0.13
+                |> Color.hsl (hsl_.h / 360) (hsl_.s / 100)
+
+        Err _ ->
+            Color.black
+
+
+pickLightColor : Color -> Color
+pickLightColor baseColor =
+    let
+        colorHsl : Result (List DeadEnd) Hsl
+        colorHsl =
+            baseColor
+                |> colorToCssHsl
+                |> Parser.run hsl
+    in
+    case colorHsl of
+        Ok hsl_ ->
+            max ((hsl_.l / 100) ^ 0.5) 0.97
+                |> Color.hsl (hsl_.h / 360) (hsl_.s / 100)
+
+        Err _ ->
+            Color.white
 
 
 pickDyad : Color -> List Color
