@@ -332,14 +332,14 @@ viewMainPane model =
 viewPreview : Model -> Element Msg
 viewPreview model =
     let
-        logoColor : Color
-        logoColor =
+        baseColor : Color
+        baseColor =
             model.stewedColors
                 |> List.head
                 |> Maybe.withDefault Color.black
 
-        baseColor : Color
-        baseColor =
+        logoColor : Color
+        logoColor =
             model.stewedColors
                 |> List.tail
                 |> Maybe.withDefault []
