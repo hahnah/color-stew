@@ -8,7 +8,7 @@ import DnDList
 import Element exposing (Element, alignTop, centerX, column, el, fill, height, html, htmlAttribute, inFront, layout, none, paddingEach, paragraph, px, row, spacing, text, width)
 import Element.Background as Background
 import Element.Border as Border
-import Element.Events exposing (onClick)
+import Element.Events exposing (onClick, onMouseEnter, onMouseLeave)
 import Element.Font as Font
 import Element.Input exposing (button, defaultThumb, labelHidden, slider)
 import Html exposing (Html)
@@ -32,6 +32,7 @@ type alias Model =
     { pickedColor : Color
     , stewedColors : List Color
     , selectedColorScheme : ColorScheme
+    , hoveredColorScheme : Maybe ColorScheme
     , dnd : DnDList.Model -- dnd stands for Drag and Drop
     }
 
@@ -65,6 +66,7 @@ init _ =
     ( { pickedColor = defaultColor
       , stewedColors = []
       , selectedColorScheme = Monochromatic
+      , hoveredColorScheme = Nothing
       , dnd = dndSystem.model
       }
     , Cmd.none
@@ -78,6 +80,8 @@ type Msg
     | AdjustLightness Int Float
     | DragAndDrop DnDList.Msg
     | CopyColorCode String
+    | EnterMouse ColorScheme
+    | LeaveMouse ColorScheme
     | None Float
 
 
@@ -180,6 +184,28 @@ update msg model =
 
         CopyColorCode colorCode ->
             ( model, copyString colorCode )
+
+        EnterMouse ontoColorScheme ->
+            ( { model | hoveredColorScheme = Just ontoColorScheme }
+            , Cmd.none
+            )
+
+        LeaveMouse fromColorScheme ->
+            ( { model
+                | hoveredColorScheme =
+                    case model.hoveredColorScheme of
+                        Just hoveredColorScheme ->
+                            if fromColorScheme == hoveredColorScheme then
+                                Nothing
+
+                            else
+                                model.hoveredColorScheme
+
+                        Nothing ->
+                            Nothing
+              }
+            , Cmd.none
+            )
 
         None _ ->
             ( model, Cmd.none )
@@ -393,17 +419,31 @@ viewColorScheme scheme model =
         schemedColors : List Color
         schemedColors =
             pickSchemedColors scheme model.pickedColor
+
+        backgroundColor : Color
+        backgroundColor =
+            if scheme == model.selectedColorScheme then
+                Color.gray
+
+            else
+                case model.hoveredColorScheme of
+                    Just hoveredColorScheme ->
+                        if scheme == hoveredColorScheme then
+                            Color.lightGray
+
+                        else
+                            Color.white
+
+                    Nothing ->
+                        Color.white
     in
     column
         [ onClick <| SelectScheme scheme schemedColors
+        , onMouseLeave <| LeaveMouse scheme
+        , onMouseEnter <| EnterMouse scheme
         , spacing 10
         , width fill
-        , Background.color <|
-            if scheme == model.selectedColorScheme then
-                toElmUIColor Color.gray
-
-            else
-                toElmUIColor Color.white
+        , Background.color <| toElmUIColor backgroundColor
         ]
         [ text schemeName
         , viewColorSet schemedColors
