@@ -31,6 +31,7 @@ main =
 type alias Model =
     { pickedColor : Color
     , stewedColors : List Color
+    , selectedColorScheme : ColorScheme
     , dnd : DnDList.Model -- dnd stands for Drag and Drop
     }
 
@@ -63,6 +64,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pickedColor = defaultColor
       , stewedColors = []
+      , selectedColorScheme = Monochromatic
       , dnd = dndSystem.model
       }
     , Cmd.none
@@ -71,7 +73,7 @@ init _ =
 
 type Msg
     = PickColor String
-    | SelectScheme (List Color)
+    | SelectScheme ColorScheme (List Color)
     | AdjustSaturation Int Float
     | AdjustLightness Int Float
     | DragAndDrop DnDList.Msg
@@ -101,8 +103,11 @@ update msg model =
             , Cmd.none
             )
 
-        SelectScheme schemeColors ->
-            ( { model | stewedColors = schemeColors }
+        SelectScheme scheme schemeColors ->
+            ( { model
+                | stewedColors = schemeColors
+                , selectedColorScheme = scheme
+              }
             , Cmd.none
             )
 
@@ -364,22 +369,22 @@ viewLeftPane model =
             [ text "ColorShemes"
             , text "Filter"
             ]
-        , viewColorScheme Dyad model.pickedColor
-        , viewColorScheme DyadPlusDarkAndLight model.pickedColor
-        , viewColorScheme Triad model.pickedColor
-        , viewColorScheme TriadPlusDarkAndLight model.pickedColor
-        , viewColorScheme SplitComplementary model.pickedColor
-        , viewColorScheme SplitComplementaryPlusDarkAndLight model.pickedColor
-        , viewColorScheme Tetrad model.pickedColor
-        , viewColorScheme TetradPlusDark model.pickedColor
-        , viewColorScheme TetradPlusLight model.pickedColor
-        , viewColorScheme Pentad model.pickedColor
-        , viewColorScheme Monochromatic model.pickedColor
+        , viewColorScheme Dyad model
+        , viewColorScheme DyadPlusDarkAndLight model
+        , viewColorScheme Triad model
+        , viewColorScheme TriadPlusDarkAndLight model
+        , viewColorScheme SplitComplementary model
+        , viewColorScheme SplitComplementaryPlusDarkAndLight model
+        , viewColorScheme Tetrad model
+        , viewColorScheme TetradPlusDark model
+        , viewColorScheme TetradPlusLight model
+        , viewColorScheme Pentad model
+        , viewColorScheme Monochromatic model
         ]
 
 
-viewColorScheme : ColorScheme -> Color -> Element Msg
-viewColorScheme scheme baseColor =
+viewColorScheme : ColorScheme -> Model -> Element Msg
+viewColorScheme scheme model =
     let
         schemeName : String
         schemeName =
@@ -387,11 +392,18 @@ viewColorScheme scheme baseColor =
 
         schemedColors : List Color
         schemedColors =
-            pickSchemedColors scheme baseColor
+            pickSchemedColors scheme model.pickedColor
     in
     column
-        [ onClick <| SelectScheme schemedColors
+        [ onClick <| SelectScheme scheme schemedColors
         , spacing 10
+        , width fill
+        , Background.color <|
+            if scheme == model.selectedColorScheme then
+                toElmUIColor Color.gray
+
+            else
+                toElmUIColor Color.white
         ]
         [ text schemeName
         , viewColorSet schemedColors
