@@ -33,6 +33,7 @@ type alias Model =
     , stewedColors : List Color
     , selectedColorScheme : ColorScheme
     , hoveredColorScheme : Maybe ColorScheme
+    , indexOfHoveredStewedColor : Maybe Int
     , dnd : DnDList.Model -- dnd stands for Drag and Drop
     }
 
@@ -67,6 +68,7 @@ init _ =
       , stewedColors = []
       , selectedColorScheme = Monochromatic
       , hoveredColorScheme = Nothing
+      , indexOfHoveredStewedColor = Nothing
       , dnd = dndSystem.model
       }
     , Cmd.none
@@ -82,6 +84,8 @@ type Msg
     | CopyColorCode String
     | EnterMouse ColorScheme
     | LeaveMouse ColorScheme
+    | EnterMouseOntoStewedColor Int
+    | LeaveMouseFromStewedColor Int
     | None Float
 
 
@@ -203,6 +207,28 @@ update msg model =
 
                         Nothing ->
                             Nothing
+              }
+            , Cmd.none
+            )
+
+        EnterMouseOntoStewedColor ontoIndex ->
+            ( { model | indexOfHoveredStewedColor = Just ontoIndex }
+            , Cmd.none
+            )
+
+        LeaveMouseFromStewedColor fromIndex ->
+            ( { model
+                | indexOfHoveredStewedColor =
+                    case model.indexOfHoveredStewedColor of
+                        Just index ->
+                            if fromIndex == index then
+                                Nothing
+
+                            else
+                                model.indexOfHoveredStewedColor
+
+                        Nothing ->
+                            model.indexOfHoveredStewedColor
               }
             , Cmd.none
             )
@@ -478,7 +504,7 @@ viewMainPane model =
         , row
             [ width fill ]
             (model.stewedColors
-                |> List.indexedMap (viewRealStewedColor model.dnd)
+                |> List.indexedMap (viewRealStewedColor model)
             )
         ]
 
@@ -561,8 +587,8 @@ viewPreview model =
         ]
 
 
-viewRealStewedColor : DnDList.Model -> Int -> Color -> Element Msg
-viewRealStewedColor dndModel index color =
+viewRealStewedColor : Model -> Int -> Color -> Element Msg
+viewRealStewedColor model index color =
     let
         colorId : String
         colorId =
@@ -570,7 +596,7 @@ viewRealStewedColor dndModel index color =
 
         attributesForDndHandling : List (Element.Attribute Msg)
         attributesForDndHandling =
-            case dndSystem.info dndModel of
+            case dndSystem.info model.dnd of
                 Just { dragIndex } ->
                     if dragIndex /= index then
                         htmlAttribute (Attributes.id colorId) :: List.map htmlAttribute (dndSystem.dropEvents index colorId)
@@ -581,7 +607,7 @@ viewRealStewedColor dndModel index color =
                 Nothing ->
                     htmlAttribute (Attributes.id colorId) :: List.map htmlAttribute (dndSystem.dragEvents index colorId)
     in
-    viewStewedColorWithSurroundings attributesForDndHandling index color
+    viewStewedColorWithSurroundings model attributesForDndHandling index color
 
 
 viewGhostStewedColor : DnDList.Model -> List Color -> Element.Element Msg
@@ -604,20 +630,34 @@ viewGhostStewedColor dndModel colors =
             Element.none
 
 
-viewStewedColorWithSurroundings : List (Element.Attribute Msg) -> Int -> Color -> Element Msg
-viewStewedColorWithSurroundings attributesForDndHandling index color =
+viewStewedColorWithSurroundings : Model -> List (Element.Attribute Msg) -> Int -> Color -> Element Msg
+viewStewedColorWithSurroundings model attributesForDndHandling index color =
     let
         colorHsl_ : Result (List DeadEnd) Hsl
         colorHsl_ =
             color
                 |> Color.Convert.colorToCssHsl
                 |> Parser.run hsl
+
+        backgroundColor : Color
+        backgroundColor =
+            case model.indexOfHoveredStewedColor of
+                Just hoveredIndex ->
+                    if index == hoveredIndex then
+                        Color.lightGray
+
+                    else
+                        Color.white
+
+                Nothing ->
+                    Color.white
     in
     case colorHsl_ of
         Ok colorHsl ->
             column
                 [ width fill
                 , Border.width 1
+                , Background.color <| toElmUIColor backgroundColor
                 ]
                 [ row
                     [ centerX
@@ -630,7 +670,12 @@ viewStewedColorWithSurroundings attributesForDndHandling index color =
                         , label = text "📋"
                         }
                     ]
-                , viewStewedColor attributesForDndHandling color
+                , el
+                    [ centerX
+                    , onMouseEnter <| EnterMouseOntoStewedColor index
+                    , onMouseLeave <| LeaveMouseFromStewedColor index
+                    ]
+                    (viewStewedColor attributesForDndHandling color)
                 , el
                     [ centerX
                     , width <| px 100
