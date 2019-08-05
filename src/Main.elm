@@ -230,6 +230,94 @@ subscriptions model =
 port copyString : String -> Cmd msg
 
 
+type ColorScheme
+    = Dyad
+    | DyadPlusDarkAndLight
+    | Triad
+    | TriadPlusDarkAndLight
+    | SplitComplementary
+    | SplitComplementaryPlusDarkAndLight
+    | Tetrad
+    | TetradPlusDark
+    | TetradPlusLight
+    | Pentad
+    | Monochromatic
+
+
+colorSchemeToString : ColorScheme -> String
+colorSchemeToString scheme =
+    case scheme of
+        Dyad ->
+            "Dyad"
+
+        DyadPlusDarkAndLight ->
+            "Dyad + Dark & Light"
+
+        Triad ->
+            "Triad"
+
+        TriadPlusDarkAndLight ->
+            "Triad + Dark & Light"
+
+        SplitComplementary ->
+            "Split Complementary"
+
+        SplitComplementaryPlusDarkAndLight ->
+            "Split Complementary + Dark & Light"
+
+        Tetrad ->
+            "Tetrad"
+
+        TetradPlusDark ->
+            "Tetrad + Dark"
+
+        TetradPlusLight ->
+            "Tetrad + Light"
+
+        Pentad ->
+            "Pentad"
+
+        Monochromatic ->
+            "Monochromatic"
+
+
+pickSchemedColors : ColorScheme -> Color -> List Color
+pickSchemedColors scheme baseColor =
+    case scheme of
+        Dyad ->
+            pickDyad baseColor
+
+        DyadPlusDarkAndLight ->
+            pickDyad baseColor ++ [ pickDarkColor baseColor ] ++ [ pickLightColor baseColor ]
+
+        Triad ->
+            pickTriad baseColor
+
+        TriadPlusDarkAndLight ->
+            pickTriad baseColor ++ [ pickDarkColor baseColor ] ++ [ pickLightColor baseColor ]
+
+        SplitComplementary ->
+            pickSplitComplementary baseColor
+
+        SplitComplementaryPlusDarkAndLight ->
+            pickSplitComplementary baseColor ++ [ pickDarkColor baseColor ] ++ [ pickLightColor baseColor ]
+
+        Tetrad ->
+            pickTetrad baseColor
+
+        TetradPlusDark ->
+            pickTetrad baseColor ++ [ pickDarkColor baseColor ]
+
+        TetradPlusLight ->
+            pickTetrad baseColor ++ [ pickLightColor baseColor ]
+
+        Pentad ->
+            pickPentad baseColor
+
+        Monochromatic ->
+            pickMonochromatic baseColor
+
+
 view : Model -> Html Msg
 view model =
     layout
@@ -276,17 +364,17 @@ viewLeftPane model =
             [ text "ColorShemes"
             , text "Filter"
             ]
-        , viewColorScheme "Dyad" <| pickDyad model.pickedColor
-        , viewColorScheme "Dyad + Dark & Light" <| pickDyad model.pickedColor ++ [ pickDarkColor model.pickedColor ] ++ [ pickLightColor model.pickedColor ]
-        , viewColorScheme "Triad" <| pickTriad model.pickedColor
-        , viewColorScheme "Triad + Dark & Light" <| pickTriad model.pickedColor ++ [ pickDarkColor model.pickedColor ] ++ [ pickLightColor model.pickedColor ]
-        , viewColorScheme "Split Complementary" <| pickSplitComplementary model.pickedColor
-        , viewColorScheme "Split Complementary + Dark & Light" <| pickSplitComplementary model.pickedColor ++ [ pickDarkColor model.pickedColor ] ++ [ pickLightColor model.pickedColor ]
-        , viewColorScheme "Tetrad" <| pickTetrad model.pickedColor
-        , viewColorScheme "Tetrad + Dark" <| pickTetrad model.pickedColor ++ [ pickDarkColor model.pickedColor ]
-        , viewColorScheme "Tetrad + Light" <| pickTetrad model.pickedColor ++ [ pickLightColor model.pickedColor ]
-        , viewColorScheme "Pentad" <| pickPentad model.pickedColor
-        , viewColorScheme "Monochromatic" <| pickMonochromatic model.pickedColor
+        , viewColorScheme (colorSchemeToString Dyad) (pickSchemedColors Dyad model.pickedColor)
+        , viewColorScheme (colorSchemeToString DyadPlusDarkAndLight) (pickSchemedColors DyadPlusDarkAndLight model.pickedColor)
+        , viewColorScheme (colorSchemeToString Triad) (pickSchemedColors Triad model.pickedColor)
+        , viewColorScheme (colorSchemeToString TriadPlusDarkAndLight) (pickSchemedColors TriadPlusDarkAndLight model.pickedColor)
+        , viewColorScheme (colorSchemeToString SplitComplementary) (pickSchemedColors SplitComplementary model.pickedColor)
+        , viewColorScheme (colorSchemeToString SplitComplementaryPlusDarkAndLight) (pickSchemedColors SplitComplementaryPlusDarkAndLight model.pickedColor)
+        , viewColorScheme (colorSchemeToString Tetrad) (pickSchemedColors Tetrad model.pickedColor)
+        , viewColorScheme (colorSchemeToString TetradPlusDark) (pickSchemedColors TetradPlusDark model.pickedColor)
+        , viewColorScheme (colorSchemeToString TetradPlusLight) (pickSchemedColors TetradPlusLight model.pickedColor)
+        , viewColorScheme (colorSchemeToString Pentad) (pickSchemedColors Pentad model.pickedColor)
+        , viewColorScheme (colorSchemeToString Monochromatic) (pickSchemedColors Monochromatic model.pickedColor)
         ]
 
 
