@@ -286,7 +286,7 @@ viewLeftPane model =
         , viewColorScheme "Tetrad + Dark" <| pickTetrad model.pickedColor ++ [ pickDarkColor model.pickedColor ]
         , viewColorScheme "Tetrad + Light" <| pickTetrad model.pickedColor ++ [ pickLightColor model.pickedColor ]
         , viewColorScheme "Pentad" <| pickPentad model.pickedColor
-        , viewColorScheme "MonoChromatic" <| pickMonochromatic model.pickedColor
+        , viewColorScheme "Monochromatic" <| pickMonochromatic model.pickedColor
         ]
 
 
