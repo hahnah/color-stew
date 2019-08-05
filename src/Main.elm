@@ -364,28 +364,37 @@ viewLeftPane model =
             [ text "ColorShemes"
             , text "Filter"
             ]
-        , viewColorScheme (colorSchemeToString Dyad) (pickSchemedColors Dyad model.pickedColor)
-        , viewColorScheme (colorSchemeToString DyadPlusDarkAndLight) (pickSchemedColors DyadPlusDarkAndLight model.pickedColor)
-        , viewColorScheme (colorSchemeToString Triad) (pickSchemedColors Triad model.pickedColor)
-        , viewColorScheme (colorSchemeToString TriadPlusDarkAndLight) (pickSchemedColors TriadPlusDarkAndLight model.pickedColor)
-        , viewColorScheme (colorSchemeToString SplitComplementary) (pickSchemedColors SplitComplementary model.pickedColor)
-        , viewColorScheme (colorSchemeToString SplitComplementaryPlusDarkAndLight) (pickSchemedColors SplitComplementaryPlusDarkAndLight model.pickedColor)
-        , viewColorScheme (colorSchemeToString Tetrad) (pickSchemedColors Tetrad model.pickedColor)
-        , viewColorScheme (colorSchemeToString TetradPlusDark) (pickSchemedColors TetradPlusDark model.pickedColor)
-        , viewColorScheme (colorSchemeToString TetradPlusLight) (pickSchemedColors TetradPlusLight model.pickedColor)
-        , viewColorScheme (colorSchemeToString Pentad) (pickSchemedColors Pentad model.pickedColor)
-        , viewColorScheme (colorSchemeToString Monochromatic) (pickSchemedColors Monochromatic model.pickedColor)
+        , viewColorScheme Dyad model.pickedColor
+        , viewColorScheme DyadPlusDarkAndLight model.pickedColor
+        , viewColorScheme Triad model.pickedColor
+        , viewColorScheme TriadPlusDarkAndLight model.pickedColor
+        , viewColorScheme SplitComplementary model.pickedColor
+        , viewColorScheme SplitComplementaryPlusDarkAndLight model.pickedColor
+        , viewColorScheme Tetrad model.pickedColor
+        , viewColorScheme TetradPlusDark model.pickedColor
+        , viewColorScheme TetradPlusLight model.pickedColor
+        , viewColorScheme Pentad model.pickedColor
+        , viewColorScheme Monochromatic model.pickedColor
         ]
 
 
-viewColorScheme : String -> List Color -> Element Msg
-viewColorScheme scheme colors =
+viewColorScheme : ColorScheme -> Color -> Element Msg
+viewColorScheme scheme baseColor =
+    let
+        schemeName : String
+        schemeName =
+            colorSchemeToString scheme
+
+        schemedColors : List Color
+        schemedColors =
+            pickSchemedColors scheme baseColor
+    in
     column
-        [ onClick <| SelectScheme colors
+        [ onClick <| SelectScheme schemedColors
         , spacing 10
         ]
-        [ text scheme
-        , viewColorSet colors
+        [ text schemeName
+        , viewColorSet schemedColors
         ]
 
 
