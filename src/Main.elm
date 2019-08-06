@@ -662,12 +662,16 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
                 [ row
                     [ centerX
                     , spacing 10
+                    , paddingXY 0 5
                     ]
                     [ text <| Color.Convert.colorToHex color
                     , button
-                        []
+                        [ width <| px 24
+                        , height <| px 24
+                        , Background.uncropped "assets/clipboard.svg"
+                        ]
                         { onPress = Just <| CopyColorCode <| Color.Convert.colorToHex color
-                        , label = text "📋"
+                        , label = none
                         }
                     ]
                 , el
