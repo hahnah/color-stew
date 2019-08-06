@@ -5,12 +5,12 @@ import Browser
 import Color exposing (Color)
 import Color.Convert exposing (colorToCssHsl, colorToCssRgb, colorToHex)
 import DnDList
-import Element exposing (Element, alignTop, centerX, column, el, fill, height, html, htmlAttribute, inFront, layout, none, paddingEach, paragraph, px, row, spacing, text, width)
+import Element exposing (Element, alignTop, centerX, column, el, fill, height, html, htmlAttribute, inFront, layout, none, paddingEach, paddingXY, paragraph, px, row, spacing, text, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick, onMouseEnter, onMouseLeave)
 import Element.Font as Font
-import Element.Input exposing (button, defaultThumb, labelHidden, slider)
+import Element.Input exposing (button, defaultThumb, labelHidden, slider, thumb)
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
@@ -679,16 +679,27 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
                 , el
                     [ centerX
                     , width <| px 100
+                    , Element.paddingXY 0 5
                     ]
                     (slider
-                        []
+                        [ Background.color <| toElmUIColor Color.lightGray
+                        , Border.rounded 10
+                        ]
                         { label = labelHidden <| String.fromFloat colorHsl.s
                         , onChange = AdjustSaturation index
                         , min = 0
                         , max = 100
                         , step = Nothing
                         , value = colorHsl.s
-                        , thumb = defaultThumb -- TODO: Replace with a saturation icon
+                        , thumb =
+                            thumb
+                                [ Background.color <| toElmUIColor Color.white
+                                , Border.width 0
+                                , Border.rounded 20
+                                , width <| px 20
+                                , height <| px 20
+                                , Background.uncropped "assets/saturation.svg"
+                                ]
                         }
                     )
                 , el
@@ -696,14 +707,24 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
                     , width <| px 100
                     ]
                     (slider
-                        []
+                        [ Background.color <| toElmUIColor Color.lightGray
+                        , Border.rounded 10
+                        ]
                         { label = labelHidden <| String.fromFloat colorHsl.l
                         , onChange = AdjustLightness index
                         , min = 0
                         , max = 100
                         , step = Nothing
                         , value = colorHsl.l
-                        , thumb = defaultThumb -- TODO: Replace with a lightness icon
+                        , thumb =
+                            thumb
+                                [ Background.color <| toElmUIColor Color.white
+                                , Border.width 0
+                                , Border.rounded 20
+                                , width <| px 20
+                                , height <| px 20
+                                , Background.uncropped "assets/lightness.svg"
+                                ]
                         }
                     )
                 ]
