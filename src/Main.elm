@@ -54,18 +54,18 @@ dndSystem =
 
 defaultColor : Color
 defaultColor =
-    Color.white
+    Color.rgb255 192 46 255
 
 
 defaultElmUIColor : Element.Color
 defaultElmUIColor =
-    Element.rgb 1 1 1
+    toElmUIColor defaultColor
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pickedColor = defaultColor
-      , stewedColors = []
+      , stewedColors = pickMonochromatic defaultColor
       , selectedColorScheme = Monochromatic
       , hoveredColorScheme = Nothing
       , indexOfHoveredStewedColor = Nothing
