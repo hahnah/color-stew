@@ -304,6 +304,9 @@ type ColorScheme
 colorSchemeToString : ColorScheme -> String
 colorSchemeToString scheme =
     case scheme of
+        Monochromatic ->
+            "Monochromatic"
+
         Dyad ->
             "Dyad"
 
@@ -334,13 +337,13 @@ colorSchemeToString scheme =
         Pentad ->
             "Pentad"
 
-        Monochromatic ->
-            "Monochromatic"
-
 
 pickSchemedColors : ColorScheme -> Color -> List Color
 pickSchemedColors scheme baseColor =
     case scheme of
+        Monochromatic ->
+            pickMonochromatic baseColor
+
         Dyad ->
             pickDyad baseColor
 
@@ -370,9 +373,6 @@ pickSchemedColors scheme baseColor =
 
         Pentad ->
             pickPentad baseColor
-
-        Monochromatic ->
-            pickMonochromatic baseColor
 
 
 view : Model -> Html Msg
@@ -421,6 +421,7 @@ viewLeftPane model =
             [ text "ColorShemes"
             , text "Filter"
             ]
+        , viewColorScheme Monochromatic model
         , viewColorScheme Dyad model
         , viewColorScheme DyadPlusDarkAndLight model
         , viewColorScheme Triad model
@@ -431,7 +432,6 @@ viewLeftPane model =
         , viewColorScheme TetradPlusDark model
         , viewColorScheme TetradPlusLight model
         , viewColorScheme Pentad model
-        , viewColorScheme Monochromatic model
         ]
 
 
