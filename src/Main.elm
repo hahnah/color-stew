@@ -57,11 +57,6 @@ defaultColor =
     Color.rgb255 192 46 255
 
 
-defaultElmUIColor : Element.Color
-defaultElmUIColor =
-    toElmUIColor defaultColor
-
-
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { pickedColor = defaultColor
@@ -900,7 +895,7 @@ toElmUIColor color =
             Element.rgb (colorRgb.r / 255) (colorRgb.g / 255) (colorRgb.b / 255)
 
         Err _ ->
-            defaultElmUIColor
+            toElmUIColor defaultColor
 
 
 type alias Rgb =
