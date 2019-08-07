@@ -292,8 +292,8 @@ type ColorScheme
     | DyadPlusDarkAndLight
     | Triad
     | TriadPlusDarkAndLight
-    | SplitComplementary
-    | SplitComplementaryPlusDarkAndLight
+    | Compound
+    | CompoundPlusDarkAndLight
     | Tetrad
     | TetradPlusDark
     | TetradPlusLight
@@ -319,11 +319,11 @@ colorSchemeToString scheme =
         TriadPlusDarkAndLight ->
             "Triad + Dark & Light"
 
-        SplitComplementary ->
-            "Split Complementary"
+        Compound ->
+            "Compound"
 
-        SplitComplementaryPlusDarkAndLight ->
-            "Split Complementary + Dark & Light"
+        CompoundPlusDarkAndLight ->
+            "Compound + Dark & Light"
 
         Tetrad ->
             "Tetrad"
@@ -356,11 +356,11 @@ pickSchemedColors scheme baseColor =
         TriadPlusDarkAndLight ->
             pickTriad baseColor ++ [ pickDarkColor baseColor ] ++ [ pickLightColor baseColor ]
 
-        SplitComplementary ->
-            pickSplitComplementary baseColor
+        Compound ->
+            pickCompound baseColor
 
-        SplitComplementaryPlusDarkAndLight ->
-            pickSplitComplementary baseColor ++ [ pickDarkColor baseColor ] ++ [ pickLightColor baseColor ]
+        CompoundPlusDarkAndLight ->
+            pickCompound baseColor ++ [ pickDarkColor baseColor ] ++ [ pickLightColor baseColor ]
 
         Tetrad ->
             pickTetrad baseColor
@@ -426,8 +426,8 @@ viewLeftPane model =
         , viewColorScheme DyadPlusDarkAndLight model
         , viewColorScheme Triad model
         , viewColorScheme TriadPlusDarkAndLight model
-        , viewColorScheme SplitComplementary model
-        , viewColorScheme SplitComplementaryPlusDarkAndLight model
+        , viewColorScheme Compound model
+        , viewColorScheme CompoundPlusDarkAndLight model
         , viewColorScheme Tetrad model
         , viewColorScheme TetradPlusDark model
         , viewColorScheme TetradPlusLight model
@@ -841,8 +841,8 @@ pickPentad baseColor =
     pickPolyad baseColor 5
 
 
-pickSplitComplementary : Color -> List Color
-pickSplitComplementary color =
+pickCompound : Color -> List Color
+pickCompound color =
     case ( pickNthNext color 12 5, pickNthNext color 12 7 ) of
         ( Ok color1, Ok color2 ) ->
             color :: color1 :: color2 :: []
