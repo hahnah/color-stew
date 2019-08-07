@@ -408,14 +408,12 @@ viewLeftPane model =
                     []
                 )
             ]
-        , row
+        , el
             [ width fill
             , spacing 10
             , Border.width 1
             ]
-            [ text "ColorShemes"
-            , text "Filter"
-            ]
+            (text "ColorShemes")
         , viewColorScheme Monochromatic model
         , viewColorScheme Dyad model
         , viewColorScheme DyadPlusDarkAndLight model
