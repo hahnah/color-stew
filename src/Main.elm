@@ -528,10 +528,13 @@ viewMainPane : Model -> Element Msg
 viewMainPane model =
     column
         [ width fill
+        , height fill
         ]
         [ viewPreview model
         , row
-            [ width fill ]
+            [ width fill
+            , Element.centerY
+            ]
             (model.stewedColors
                 |> List.indexedMap (viewRealStewedColor model)
             )
