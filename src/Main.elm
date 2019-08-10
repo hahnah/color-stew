@@ -398,7 +398,7 @@ viewLeftPane model =
             pickMonochromatic model.pickedColor
     in
     column
-        [ width <| px 350
+        [ width <| px 320
         , height fill
         ]
         [ row
@@ -495,9 +495,8 @@ viewColorScheme scheme model =
         [ onClick <| SelectScheme scheme schemedColors
         , onMouseLeave <| LeaveMouseFromColorScheme scheme
         , onMouseEnter <| EnterMouseOntoColorScheme scheme
-        , spacing 3
-        , Element.padding 5
-        , Font.size 18
+        , padding 8
+        , Font.size 16
         , width fill
         , Background.color <| toElmUIColor backgroundColor
         ]
