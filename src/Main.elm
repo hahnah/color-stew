@@ -589,7 +589,7 @@ viewPreview model =
             , Font.heavy
             , centerX
             , paddingEach
-                { top = 10
+                { top = 20
                 , right = 0
                 , bottom = 0
                 , left = 0
@@ -600,7 +600,7 @@ viewPreview model =
             [ Font.color <| toElmUIColor baseColor
             , centerX
             ]
-            (html <| Logo.logo 400 logoColor)
+            (html <| Logo.logo 380 logoColor)
         , el
             [ Background.color <| toElmUIColor textBackgroundColor
             , width fill
