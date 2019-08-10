@@ -418,7 +418,7 @@ viewLeftPane model =
                     |> toElmUIColor
                     |> Font.color
                 ]
-                (text "Pick Main Color →")
+                (text "Pick Base Color →")
             , html
                 (Html.input
                     [ Attributes.type_ "color"
