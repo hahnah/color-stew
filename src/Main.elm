@@ -608,12 +608,19 @@ viewPreview model =
             ]
             (el
                 [ Font.color <| toElmUIColor textColor
+                , Font.size 18
                 , centerX
+                , paddingXY 50 20
                 ]
                 (paragraph
-                    []
-                    [ text "Color Stew is a color combination experiment tool."
-                    , text " Text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text text."
+                    [ width (fill |> Element.maximum 800) ]
+                    [ text "Color Stew is a design tool for experiments of color combinations."
+                    , text " First pick a base color whatever you like at the top left, then Color Stew automatically generates 11 different color schemes."
+                    , text " Just select one of them to check how it looks."
+                    , text " Generated color schemes are possibly not so cool."
+                    , text " But don't worry. You can adjust each color's saturation and lightness to make it better."
+                    , text " You don't like color placements? Just change the order by drag & drop to arrange them."
+                    , text " Let's find cool color combinations with Color Scheme."
                     ]
                 )
             )
