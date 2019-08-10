@@ -5,7 +5,7 @@ import Browser
 import Color exposing (Color)
 import Color.Convert exposing (colorToCssHsl, colorToCssRgb, colorToHex)
 import DnDList
-import Element exposing (Element, alignTop, centerX, column, el, fill, height, html, htmlAttribute, inFront, layout, none, paddingEach, paddingXY, paragraph, px, row, spacing, text, width)
+import Element exposing (Element, alignRight, alignTop, centerX, column, el, fill, height, html, htmlAttribute, inFront, layout, none, padding, paddingEach, paddingXY, paragraph, px, row, spacing, text, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick, onMouseEnter, onMouseLeave)
@@ -376,6 +376,10 @@ view model =
         [ width fill
         , alignTop
         , inFront (viewGhostStewedColor model.dnd model.stewedColors)
+        , Font.family
+            [ Font.typeface "Latha"
+            , Font.sansSerif
+            ]
         ]
         (row
             [ width fill
@@ -388,6 +392,11 @@ view model =
 
 viewLeftPane : Model -> Element Msg
 viewLeftPane model =
+    let
+        monochromaticColors : List Color
+        monochromaticColors =
+            pickMonochromatic model.pickedColor
+    in
     column
         [ width <| px 350
         , height fill
@@ -395,10 +404,23 @@ viewLeftPane model =
         ]
         [ row
             [ width fill
-            , spacing 10
             , Border.width 1
+            , List.head monochromaticColors
+                |> Maybe.withDefault Color.white
+                |> toElmUIColor
+                |> Background.color
             ]
-            [ text "PickMainColor"
+            [ el
+                [ alignRight
+                , paddingXY 25 5
+                , Font.heavy
+                , List.drop 4 monochromaticColors
+                    |> List.head
+                    |> Maybe.withDefault Color.black
+                    |> toElmUIColor
+                    |> Font.color
+                ]
+                (text "Pick Main Color →")
             , html
                 (Html.input
                     [ Attributes.type_ "color"
@@ -412,8 +434,24 @@ viewLeftPane model =
             [ width fill
             , spacing 10
             , Border.width 1
+            , Font.size 15
+            , List.drop 4 monochromaticColors
+                |> List.head
+                |> Maybe.withDefault Color.white
+                |> toElmUIColor
+                |> Font.color
+            , List.drop 1 monochromaticColors
+                |> List.head
+                |> Maybe.withDefault Color.black
+                |> toElmUIColor
+                |> Background.color
             ]
-            (text "ColorShemes")
+            (el
+                [ centerX
+                , padding 2
+                ]
+                (text "Color Shemes")
+            )
         , viewColorScheme Monochromatic model
         , viewColorScheme Dyad model
         , viewColorScheme DyadPlusDarkAndLight model
@@ -460,7 +498,9 @@ viewColorScheme scheme model =
         [ onClick <| SelectScheme scheme schemedColors
         , onMouseLeave <| LeaveMouseFromColorScheme scheme
         , onMouseEnter <| EnterMouseOntoColorScheme scheme
-        , spacing 10
+        , spacing 3
+        , Element.padding 5
+        , Font.size 18
         , width fill
         , Background.color <| toElmUIColor backgroundColor
         ]
@@ -548,6 +588,7 @@ viewPreview model =
         [ el
             [ Font.color <| toElmUIColor titleColor
             , Font.size 30
+            , Font.heavy
             , centerX
             , paddingEach
                 { top = 10
