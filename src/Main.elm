@@ -400,11 +400,9 @@ viewLeftPane model =
     column
         [ width <| px 350
         , height fill
-        , Border.width 1
         ]
         [ row
             [ width fill
-            , Border.width 1
             , List.head monochromaticColors
                 |> Maybe.withDefault Color.white
                 |> toElmUIColor
@@ -433,7 +431,6 @@ viewLeftPane model =
         , el
             [ width fill
             , spacing 10
-            , Border.width 1
             , Font.size 15
             , List.drop 4 monochromaticColors
                 |> List.head
@@ -531,7 +528,6 @@ viewMainPane : Model -> Element Msg
 viewMainPane model =
     column
         [ width fill
-        , Border.width 1
         ]
         [ viewPreview model
         , row
@@ -690,7 +686,6 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
         Ok colorHsl ->
             column
                 [ width fill
-                , Border.width 1
                 , Background.color <| toElmUIColor backgroundColor
                 ]
                 [ row
@@ -770,7 +765,6 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
         Err _ ->
             column
                 [ width fill
-                , Border.width 1
                 ]
                 [ el
                     [ centerX
