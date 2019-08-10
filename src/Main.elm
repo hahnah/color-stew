@@ -703,10 +703,12 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
                     , spacing 10
                     , paddingXY 0 5
                     ]
-                    [ text <| Color.Convert.colorToHex color
+                    [ el
+                        [ Font.size 15 ]
+                        (text <| Color.Convert.colorToHex color)
                     , button
-                        [ width <| px 24
-                        , height <| px 24
+                        [ width <| px 20
+                        , height <| px 20
                         , Background.uncropped "assets/clipboard.svg"
                         ]
                         { onPress = Just <| CopyColorCode <| Color.Convert.colorToHex color
