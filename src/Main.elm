@@ -18,6 +18,10 @@ import Logo
 import Parser exposing ((|.), (|=), DeadEnd, Parser, float, spaces, succeed, symbol)
 
 
+
+-- MAIN
+
+
 main : Program () Model Msg
 main =
     Browser.element
@@ -26,6 +30,10 @@ main =
         , subscriptions = subscriptions
         , view = view
         }
+
+
+
+-- MODEL
 
 
 type alias Model =
@@ -70,6 +78,22 @@ init _ =
     )
 
 
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    dndSystem.subscriptions model.dnd
+
+
+port copyString : String -> Cmd msg
+
+
+
+-- UPDATE
+
+
 type Msg
     = PickColor String
     | SelectScheme ColorScheme (List Color)
@@ -82,12 +106,6 @@ type Msg
     | EnterMouseOntoStewedColor Int
     | LeaveMouseFromStewedColor Int
     | None Float
-
-
-type HslElement
-    = Hue
-    | Saturation
-    | Lightness
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -274,12 +292,14 @@ adjustColor model adjustingElement index value =
             Err [ DeadEnd 1 index <| Parser.Problem "Failed to get an element from an array." ]
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    dndSystem.subscriptions model.dnd
+type HslElement
+    = Hue
+    | Saturation
+    | Lightness
 
 
-port copyString : String -> Cmd msg
+
+-- VIEW
 
 
 type ColorScheme
@@ -925,6 +945,53 @@ pickMonochromatic baseColor =
             []
 
 
+pickNthNext : Color -> Int -> Int -> Result (List DeadEnd) Color
+pickNthNext baseColor total n =
+    let
+        hueDifferenceUnit : Float
+        hueDifferenceUnit =
+            1 / toFloat total
+
+        baseColorHslWithDegreeHue : Result (List DeadEnd) Hsl
+        baseColorHslWithDegreeHue =
+            baseColor
+                |> Color.Convert.colorToCssHsl
+                |> Parser.run hsl
+
+        baseColorHsl : Result (List DeadEnd) Hsl
+        baseColorHsl =
+            case baseColorHslWithDegreeHue of
+                Ok colorHsl ->
+                    Ok
+                        {- Change HSL formart from {h: 0-360[deg], s: 0-100[%], l: 0-100[%]} to {h: 0-1, s: 0-1, l: 0-1} -}
+                        { colorHsl
+                            | h = colorHsl.h / 360
+                            , s = colorHsl.s / 100
+                            , l = colorHsl.l / 100
+                        }
+
+                Err msg ->
+                    Err msg
+    in
+    case baseColorHsl of
+        Ok colorHsl ->
+            let
+                gainedHue =
+                    colorHsl.h + toFloat n * hueDifferenceUnit
+
+                pickedHue =
+                    if gainedHue >= 1 then
+                        gainedHue - 1
+
+                    else
+                        gainedHue
+            in
+            Ok <| Color.hsl pickedHue colorHsl.s colorHsl.l
+
+        Err _ ->
+            Err [ DeadEnd 1 1 <| Parser.Problem "Failed pickNthNext" ]
+
+
 toElmUIColor : Color -> Element.Color
 toElmUIColor color =
     let
@@ -983,50 +1050,3 @@ hsl =
         |. spaces
         |= float
         |. symbol "%)"
-
-
-pickNthNext : Color -> Int -> Int -> Result (List DeadEnd) Color
-pickNthNext baseColor total n =
-    let
-        hueDifferenceUnit : Float
-        hueDifferenceUnit =
-            1 / toFloat total
-
-        baseColorHslWithDegreeHue : Result (List DeadEnd) Hsl
-        baseColorHslWithDegreeHue =
-            baseColor
-                |> Color.Convert.colorToCssHsl
-                |> Parser.run hsl
-
-        baseColorHsl : Result (List DeadEnd) Hsl
-        baseColorHsl =
-            case baseColorHslWithDegreeHue of
-                Ok colorHsl ->
-                    Ok
-                        {- Change HSL formart from {h: 0-360[deg], s: 0-100[%], l: 0-100[%]} to {h: 0-1, s: 0-1, l: 0-1} -}
-                        { colorHsl
-                            | h = colorHsl.h / 360
-                            , s = colorHsl.s / 100
-                            , l = colorHsl.l / 100
-                        }
-
-                Err msg ->
-                    Err msg
-    in
-    case baseColorHsl of
-        Ok colorHsl ->
-            let
-                gainedHue =
-                    colorHsl.h + toFloat n * hueDifferenceUnit
-
-                pickedHue =
-                    if gainedHue >= 1 then
-                        gainedHue - 1
-
-                    else
-                        gainedHue
-            in
-            Ok <| Color.hsl pickedHue colorHsl.s colorHsl.l
-
-        Err _ ->
-            Err [ DeadEnd 1 1 <| Parser.Problem "Failed pickNthNext" ]
