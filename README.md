@@ -1,5 +1,8 @@
-# color-stew
-Color combinations generator.
+# Color Stew
+
+Color Stew is a design tool for experiments of color combinations.
+
+Try Color Stew at [https://superhahnah.com/application/color-stew](https://superhahnah.com/application/color-stew).
 
 ## Build
 
