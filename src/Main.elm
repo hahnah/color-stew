@@ -3,14 +3,14 @@ port module Main exposing (main)
 import Array exposing (Array)
 import Browser
 import Color exposing (Color)
-import Color.Convert exposing (colorToCssHsl, colorToCssRgb, colorToHex)
+import Color.Convert exposing (colorToCssHsl, colorToCssRgb, colorToHex, hexToColor)
 import DnDList
-import Element exposing (Element, alignRight, alignTop, centerX, column, el, fill, height, html, htmlAttribute, inFront, layout, none, padding, paddingEach, paddingXY, paragraph, px, row, spacing, text, width)
+import Element exposing (Attribute, Element, alignRight, alignTop, centerX, centerY, column, el, fill, height, html, htmlAttribute, inFront, layout, maximum, none, padding, paddingEach, paddingXY, paragraph, px, row, spacing, text, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick, onMouseEnter, onMouseLeave)
 import Element.Font as Font
-import Element.Input exposing (button, defaultThumb, labelHidden, slider, thumb)
+import Element.Input exposing (button, labelHidden, slider, thumb)
 import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
@@ -114,7 +114,7 @@ update msg model =
         PickColor colorHex ->
             ( { model
                 | pickedColor =
-                    case Color.Convert.hexToColor colorHex of
+                    case hexToColor colorHex of
                         Ok color ->
                             color
 
@@ -265,7 +265,7 @@ adjustColor model adjustingElement index value =
     case colorToBeAdjusted of
         Just color ->
             color
-                |> Color.Convert.colorToCssHsl
+                |> colorToCssHsl
                 |> Parser.run hsl
                 |> (\resultHsl ->
                         case resultHsl of
@@ -442,7 +442,7 @@ viewLeftPane model =
             , html
                 (Html.input
                     [ Attributes.type_ "color"
-                    , Attributes.value <| Color.Convert.colorToHex model.pickedColor
+                    , Attributes.value <| colorToHex model.pickedColor
                     , Events.onInput PickColor
                     ]
                     []
@@ -552,7 +552,7 @@ viewMainPane model =
         [ viewPreview model
         , row
             [ width fill
-            , Element.centerY
+            , centerY
             ]
             (model.stewedColors
                 |> List.indexedMap (viewRealStewedColor model)
@@ -632,7 +632,7 @@ viewPreview model =
                 , paddingXY 50 20
                 ]
                 (paragraph
-                    [ width (fill |> Element.maximum 800) ]
+                    [ width (fill |> maximum 800) ]
                     [ text "Color Stew is a design tool for experiments of color combinations."
                     , text " First pick a base color whatever you like at the top left, then Color Stew automatically generates 11 different color schemes."
                     , text " Just select one of them to check how it looks."
@@ -653,7 +653,7 @@ viewRealStewedColor model index color =
         colorId =
             "stewedColor-" ++ String.fromInt index
 
-        attributesForDndHandling : List (Element.Attribute Msg)
+        attributesForDndHandling : List (Attribute Msg)
         attributesForDndHandling =
             case dndSystem.info model.dnd of
                 Just { dragIndex } ->
@@ -669,7 +669,7 @@ viewRealStewedColor model index color =
     viewStewedColorWithSurroundings model attributesForDndHandling index color
 
 
-viewGhostStewedColor : DnDList.Model -> List Color -> Element.Element Msg
+viewGhostStewedColor : DnDList.Model -> List Color -> Element Msg
 viewGhostStewedColor dndModel colors =
     let
         maybeDragColor : Maybe Color
@@ -677,7 +677,7 @@ viewGhostStewedColor dndModel colors =
             dndSystem.info dndModel
                 |> Maybe.andThen (\{ dragIndex } -> colors |> List.drop dragIndex |> List.head)
 
-        attributesForDndHandling : List (Element.Attribute Msg)
+        attributesForDndHandling : List (Attribute Msg)
         attributesForDndHandling =
             List.map htmlAttribute (dndSystem.ghostStyles dndModel)
     in
@@ -686,16 +686,16 @@ viewGhostStewedColor dndModel colors =
             viewStewedColor attributesForDndHandling color
 
         Nothing ->
-            Element.none
+            none
 
 
-viewStewedColorWithSurroundings : Model -> List (Element.Attribute Msg) -> Int -> Color -> Element Msg
+viewStewedColorWithSurroundings : Model -> List (Attribute Msg) -> Int -> Color -> Element Msg
 viewStewedColorWithSurroundings model attributesForDndHandling index color =
     let
         colorHsl_ : Result (List DeadEnd) Hsl
         colorHsl_ =
             color
-                |> Color.Convert.colorToCssHsl
+                |> colorToCssHsl
                 |> Parser.run hsl
 
         backgroundColor : Color
@@ -724,13 +724,13 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
                     ]
                     [ el
                         [ Font.size 15 ]
-                        (text <| Color.Convert.colorToHex color)
+                        (text <| colorToHex color)
                     , button
                         [ width <| px 20
                         , height <| px 20
                         , Background.uncropped "assets/clipboard.svg"
                         ]
-                        { onPress = Just <| CopyColorCode <| Color.Convert.colorToHex color
+                        { onPress = Just <| CopyColorCode <| colorToHex color
                         , label = none
                         }
                     ]
@@ -743,7 +743,7 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
                 , el
                     [ centerX
                     , width <| px 100
-                    , Element.paddingXY 0 5
+                    , paddingXY 0 5
                     ]
                     (slider
                         [ Background.color <| toElmUIColor Color.lightGray
@@ -813,7 +813,7 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
                 ]
 
 
-viewStewedColor : List (Element.Attribute Msg) -> Color -> Element Msg
+viewStewedColor : List (Attribute Msg) -> Color -> Element Msg
 viewStewedColor attributesForDndHandling color =
     el
         (List.append
@@ -824,7 +824,7 @@ viewStewedColor attributesForDndHandling color =
             ]
             attributesForDndHandling
         )
-        Element.none
+        none
 
 
 pickPolyad : Color -> Int -> List Color
@@ -955,7 +955,7 @@ pickNthNext baseColor total n =
         baseColorHslWithDegreeHue : Result (List DeadEnd) Hsl
         baseColorHslWithDegreeHue =
             baseColor
-                |> Color.Convert.colorToCssHsl
+                |> colorToCssHsl
                 |> Parser.run hsl
 
         baseColorHsl : Result (List DeadEnd) Hsl
