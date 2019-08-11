@@ -20,3 +20,7 @@ $ elm-live src/*.elm -- --output=main.js --debug
 ```sh
 $ elm make src/*.elm --output=main.js --optimize
 ```
+
+## License
+
+MIT &copy; 2019, hahnah
