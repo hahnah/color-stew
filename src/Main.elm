@@ -515,7 +515,8 @@ viewColorScheme scheme model =
         [ onClick <| SelectScheme scheme schemeColors
         , onMouseLeave <| LeaveMouseFromColorScheme scheme
         , onMouseEnter <| EnterMouseOntoColorScheme scheme
-        , padding 8
+        , spacing 2
+        , padding 7
         , Font.size 16
         , width fill
         , Background.color <| toElmUIColor backgroundColor
