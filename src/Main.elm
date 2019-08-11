@@ -353,8 +353,8 @@ colorSchemeToString scheme =
             "Pentad"
 
 
-pickSchemedColors : ColorScheme -> Color -> List Color
-pickSchemedColors scheme baseColor =
+pickSchemeColors : ColorScheme -> Color -> List Color
+pickSchemeColors scheme baseColor =
     case scheme of
         Monochromatic ->
             pickMonochromatic baseColor
@@ -490,9 +490,9 @@ viewColorScheme scheme model =
         schemeName =
             colorSchemeToString scheme
 
-        schemedColors : List Color
-        schemedColors =
-            pickSchemedColors scheme model.pickedColor
+        schemeColors : List Color
+        schemeColors =
+            pickSchemeColors scheme model.pickedColor
 
         backgroundColor : Color
         backgroundColor =
@@ -512,7 +512,7 @@ viewColorScheme scheme model =
                         Color.white
     in
     column
-        [ onClick <| SelectScheme scheme schemedColors
+        [ onClick <| SelectScheme scheme schemeColors
         , onMouseLeave <| LeaveMouseFromColorScheme scheme
         , onMouseEnter <| EnterMouseOntoColorScheme scheme
         , padding 8
@@ -521,7 +521,7 @@ viewColorScheme scheme model =
         , Background.color <| toElmUIColor backgroundColor
         ]
         [ text schemeName
-        , viewColorSet schemedColors
+        , viewColorSet schemeColors
         ]
 
 
