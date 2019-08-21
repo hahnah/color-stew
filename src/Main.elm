@@ -2,8 +2,8 @@ port module Main exposing (main)
 
 import Array exposing (Array)
 import Browser
-import Color exposing (Color)
-import Color.Convert exposing (colorToCssHsl, colorToCssRgb, colorToHex, hexToColor)
+import Color exposing (Color, fromHsla, toHsla, toRgba)
+import Color.Convert exposing (colorToHex, hexToColor)
 import DnDList
 import Element exposing (Attribute, Element, alignRight, alignTop, centerX, centerY, column, el, fill, height, html, htmlAttribute, inFront, layout, maximum, none, padding, paddingEach, paddingXY, paragraph, px, row, spacing, text, width)
 import Element.Background as Background
@@ -15,7 +15,6 @@ import Html exposing (Html)
 import Html.Attributes as Attributes
 import Html.Events as Events
 import Logo
-import Parser exposing ((|.), (|=), DeadEnd, Parser, float, spaces, succeed, symbol)
 
 
 
@@ -143,7 +142,7 @@ update msg model =
                     arrayedColors
                         |> Array.get index
 
-                adjustedColor : Result (List DeadEnd) Color
+                adjustedColor : Result String Color
                 adjustedColor =
                     adjustColor model Saturation index saturation
 
@@ -172,7 +171,7 @@ update msg model =
                     arrayedColors
                         |> Array.get index
 
-                adjustedColor : Result (List DeadEnd) Color
+                adjustedColor : Result String Color
                 adjustedColor =
                     adjustColor model Lightness index lightness
 
@@ -250,7 +249,7 @@ update msg model =
             ( model, Cmd.none )
 
 
-adjustColor : Model -> HslElement -> Int -> Float -> Result (List DeadEnd) Color
+adjustColor : Model -> HslElement -> Int -> Float -> Result String Color
 adjustColor model adjustingElement index value =
     let
         arrayedColors : Array Color
@@ -265,31 +264,23 @@ adjustColor model adjustingElement index value =
     case colorToBeAdjusted of
         Just color ->
             color
-                |> colorToCssHsl
-                |> Parser.run hsl
-                |> (\resultHsl ->
-                        case resultHsl of
-                            Ok hsl_ ->
-                                (case adjustingElement of
-                                    Hue ->
-                                        { hsl_ | h = value }
+                |> toHsla
+                |> (\hsla ->
+                        case adjustingElement of
+                            Hue ->
+                                { hsla | hue = value }
 
-                                    Saturation ->
-                                        { hsl_ | s = value }
+                            Saturation ->
+                                { hsla | saturation = value }
 
-                                    Lightness ->
-                                        { hsl_ | l = value }
-                                )
-                                    -- Change HSL formart from {h: 0-360[deg], s: 0-100[%], l: 0-100[%]} to {h: 0-1, s: 0-1, l: 0-1}
-                                    |> (\hsl__ -> Color.hsl (hsl__.h / 360) (hsl__.s / 100) (hsl__.l / 100))
-                                    |> Ok
-
-                            Err message ->
-                                Err message
+                            Lightness ->
+                                { hsla | lightness = value }
                    )
+                |> fromHsla
+                |> Ok
 
         Nothing ->
-            Err [ DeadEnd 1 index <| Parser.Problem "Failed to get an element from an array." ]
+            Err "Failed to get an element from an array."
 
 
 type HslElement
@@ -693,11 +684,9 @@ viewGhostStewedColor dndModel colors =
 viewStewedColorWithSurroundings : Model -> List (Attribute Msg) -> Int -> Color -> Element Msg
 viewStewedColorWithSurroundings model attributesForDndHandling index color =
     let
-        colorHsl_ : Result (List DeadEnd) Hsl
-        colorHsl_ =
-            color
-                |> colorToCssHsl
-                |> Parser.run hsl
+        colorHsla : Hsla
+        colorHsla =
+            toHsla color
 
         backgroundColor : Color
         backgroundColor =
@@ -712,106 +701,85 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
                 Nothing ->
                     Color.white
     in
-    case colorHsl_ of
-        Ok colorHsl ->
-            column
-                [ width fill
-                , Background.color <| toElmUIColor backgroundColor
+    column
+        [ width fill
+        , Background.color <| toElmUIColor backgroundColor
+        ]
+        [ row
+            [ centerX
+            , spacing 10
+            , paddingXY 0 5
+            ]
+            [ el
+                [ Font.size 15 ]
+                (text <| colorToHex color)
+            , button
+                [ width <| px 20
+                , height <| px 20
+                , Background.uncropped "assets/clipboard.svg"
                 ]
-                [ row
-                    [ centerX
-                    , spacing 10
-                    , paddingXY 0 5
-                    ]
-                    [ el
-                        [ Font.size 15 ]
-                        (text <| colorToHex color)
-                    , button
-                        [ width <| px 20
+                { onPress = Just <| CopyColorCode <| colorToHex color
+                , label = none
+                }
+            ]
+        , el
+            [ centerX
+            , onMouseEnter <| EnterMouseOntoStewedColor index
+            , onMouseLeave <| LeaveMouseFromStewedColor index
+            ]
+            (viewStewedColor attributesForDndHandling color)
+        , el
+            [ centerX
+            , width <| px 100
+            , paddingXY 0 5
+            ]
+            (slider
+                [ Background.color <| toElmUIColor Color.lightGray
+                , Border.rounded 10
+                ]
+                { label = labelHidden <| String.fromFloat colorHsla.saturation
+                , onChange = AdjustSaturation index
+                , min = 0
+                , max = 1
+                , step = Nothing
+                , value = colorHsla.saturation
+                , thumb =
+                    thumb
+                        [ Background.color <| toElmUIColor Color.white
+                        , Border.width 0
+                        , Border.rounded 20
+                        , width <| px 20
                         , height <| px 20
-                        , Background.uncropped "assets/clipboard.svg"
+                        , Background.uncropped "assets/saturation.svg"
                         ]
-                        { onPress = Just <| CopyColorCode <| colorToHex color
-                        , label = none
-                        }
-                    ]
-                , el
-                    [ centerX
-                    , onMouseEnter <| EnterMouseOntoStewedColor index
-                    , onMouseLeave <| LeaveMouseFromStewedColor index
-                    ]
-                    (viewStewedColor attributesForDndHandling color)
-                , el
-                    [ centerX
-                    , width <| px 100
-                    , paddingXY 0 5
-                    ]
-                    (slider
-                        [ Background.color <| toElmUIColor Color.lightGray
-                        , Border.rounded 10
+                }
+            )
+        , el
+            [ centerX
+            , width <| px 100
+            ]
+            (slider
+                [ Background.color <| toElmUIColor Color.lightGray
+                , Border.rounded 10
+                ]
+                { label = labelHidden <| String.fromFloat colorHsla.lightness
+                , onChange = AdjustLightness index
+                , min = 0
+                , max = 1
+                , step = Nothing
+                , value = colorHsla.lightness
+                , thumb =
+                    thumb
+                        [ Background.color <| toElmUIColor Color.white
+                        , Border.width 0
+                        , Border.rounded 20
+                        , width <| px 20
+                        , height <| px 20
+                        , Background.uncropped "assets/lightness.svg"
                         ]
-                        { label = labelHidden <| String.fromFloat colorHsl.s
-                        , onChange = AdjustSaturation index
-                        , min = 0
-                        , max = 100
-                        , step = Nothing
-                        , value = colorHsl.s
-                        , thumb =
-                            thumb
-                                [ Background.color <| toElmUIColor Color.white
-                                , Border.width 0
-                                , Border.rounded 20
-                                , width <| px 20
-                                , height <| px 20
-                                , Background.uncropped "assets/saturation.svg"
-                                ]
-                        }
-                    )
-                , el
-                    [ centerX
-                    , width <| px 100
-                    ]
-                    (slider
-                        [ Background.color <| toElmUIColor Color.lightGray
-                        , Border.rounded 10
-                        ]
-                        { label = labelHidden <| String.fromFloat colorHsl.l
-                        , onChange = AdjustLightness index
-                        , min = 0
-                        , max = 100
-                        , step = Nothing
-                        , value = colorHsl.l
-                        , thumb =
-                            thumb
-                                [ Background.color <| toElmUIColor Color.white
-                                , Border.width 0
-                                , Border.rounded 20
-                                , width <| px 20
-                                , height <| px 20
-                                , Background.uncropped "assets/lightness.svg"
-                                ]
-                        }
-                    )
-                ]
-
-        Err _ ->
-            column
-                [ width fill
-                ]
-                [ el
-                    [ centerX
-                    , spacing 10
-                    ]
-                    (text "#??????")
-                , el
-                    [ centerX
-                    , width <| px 100
-                    , height <| px 70
-                    ]
-                    (text "Error")
-                , el [ centerX ] <| text "SaturationSlider"
-                , el [ centerX ] <| text "LightnessSlider"
-                ]
+                }
+            )
+        ]
 
 
 viewStewedColor : List (Attribute Msg) -> Color -> Element Msg
@@ -832,53 +800,22 @@ pickPolyad : Color -> Int -> List Color
 pickPolyad baseColor dimension =
     List.range 0 (dimension - 1)
         |> List.map (pickNthNext baseColor dimension)
-        |> List.foldr
-            (\resultColor ->
-                \acc ->
-                    case resultColor of
-                        Ok color ->
-                            color :: acc
-
-                        Err _ ->
-                            acc
-            )
-            []
 
 
 pickDarkColor : Color -> Color
 pickDarkColor baseColor =
-    let
-        colorHsl : Result (List DeadEnd) Hsl
-        colorHsl =
-            baseColor
-                |> colorToCssHsl
-                |> Parser.run hsl
-    in
-    case colorHsl of
-        Ok hsl_ ->
-            min ((hsl_.l / 100) ^ 2) 0.13
-                |> Color.hsl (hsl_.h / 360) (hsl_.s / 100)
-
-        Err _ ->
-            Color.black
+    baseColor
+        |> toHsla
+        |> (\hsla -> { hsla | lightness = min (hsla.lightness ^ 2) 0.13 })
+        |> fromHsla
 
 
 pickLightColor : Color -> Color
 pickLightColor baseColor =
-    let
-        colorHsl : Result (List DeadEnd) Hsl
-        colorHsl =
-            baseColor
-                |> colorToCssHsl
-                |> Parser.run hsl
-    in
-    case colorHsl of
-        Ok hsl_ ->
-            max ((hsl_.l / 100) ^ 0.5) 0.97
-                |> Color.hsl (hsl_.h / 360) (hsl_.s / 100)
-
-        Err _ ->
-            Color.white
+    baseColor
+        |> toHsla
+        |> (\hsla -> { hsla | lightness = max (hsla.lightness ^ 0.5) 0.97 })
+        |> fromHsla
 
 
 pickDyad : Color -> List Color
@@ -903,29 +840,15 @@ pickPentad baseColor =
 
 pickCompound : Color -> List Color
 pickCompound color =
-    case ( pickNthNext color 12 5, pickNthNext color 12 7 ) of
-        ( Ok color1, Ok color2 ) ->
-            color :: color1 :: color2 :: []
-
-        ( Ok color1, Err _ ) ->
-            color :: color1 :: []
-
-        ( Err _, Ok color2 ) ->
-            color :: color2 :: []
-
-        ( Err _, Err _ ) ->
-            color :: []
+    color
+        :: pickNthNext color 12 5
+        :: pickNthNext color 12 7
+        :: []
 
 
 pickMonochromatic : Color -> List Color
 pickMonochromatic baseColor =
     let
-        baseColorHsl : Result (List DeadEnd) Hsl
-        baseColorHsl =
-            baseColor
-                |> colorToCssHsl
-                |> Parser.run hsl
-
         makeOverflow : Float -> Float -> Float
         makeOverflow num max =
             if num <= max then
@@ -934,120 +857,53 @@ pickMonochromatic baseColor =
             else
                 num - max
     in
-    case baseColorHsl of
-        Ok colorHsl ->
-            List.range 0 4
-                |> List.map toFloat
-                |> List.map (\index -> Hsl (colorHsl.h / 360) (colorHsl.s / 100) (makeOverflow (colorHsl.l / 100 + index * 0.2) 1))
-                |> List.sortBy .l
-                |> List.map (\hsl_ -> Color.hsl hsl_.h hsl_.s hsl_.l)
+    baseColor
+        |> toHsla
+        |> (\hsla ->
+                List.range 0 4
+                    |> List.map toFloat
+                    |> List.map (\index -> { hsla | lightness = makeOverflow (hsla.lightness + index * 0.2) 1 })
+           )
+        |> List.sortBy .lightness
+        |> List.map fromHsla
 
-        Err _ ->
-            []
 
-
-pickNthNext : Color -> Int -> Int -> Result (List DeadEnd) Color
+pickNthNext : Color -> Int -> Int -> Color
 pickNthNext baseColor total n =
     let
         hueDifferenceUnit : Float
         hueDifferenceUnit =
             1 / toFloat total
-
-        baseColorHslWithDegreeHue : Result (List DeadEnd) Hsl
-        baseColorHslWithDegreeHue =
-            baseColor
-                |> colorToCssHsl
-                |> Parser.run hsl
-
-        baseColorHsl : Result (List DeadEnd) Hsl
-        baseColorHsl =
-            case baseColorHslWithDegreeHue of
-                Ok colorHsl ->
-                    Ok
-                        {- Change HSL formart from {h: 0-360[deg], s: 0-100[%], l: 0-100[%]} to {h: 0-1, s: 0-1, l: 0-1} -}
-                        { colorHsl
-                            | h = colorHsl.h / 360
-                            , s = colorHsl.s / 100
-                            , l = colorHsl.l / 100
-                        }
-
-                Err msg ->
-                    Err msg
     in
-    case baseColorHsl of
-        Ok colorHsl ->
-            let
-                gainedHue =
-                    colorHsl.h + toFloat n * hueDifferenceUnit
+    baseColor
+        |> toHsla
+        |> (\hsla ->
+                let
+                    gainedHue =
+                        hsla.hue + toFloat n * hueDifferenceUnit
 
-                pickedHue =
-                    if gainedHue >= 1 then
-                        gainedHue - 1
+                    pickedHue =
+                        if gainedHue >= 1 then
+                            gainedHue - 1
 
-                    else
-                        gainedHue
-            in
-            Ok <| Color.hsl pickedHue colorHsl.s colorHsl.l
-
-        Err _ ->
-            Err [ DeadEnd 1 1 <| Parser.Problem "Failed pickNthNext" ]
+                        else
+                            gainedHue
+                in
+                { hsla | hue = pickedHue }
+           )
+        |> fromHsla
 
 
 toElmUIColor : Color -> Element.Color
 toElmUIColor color =
-    let
-        colorRgb_ : Result (List DeadEnd) Rgb
-        colorRgb_ =
-            color
-                |> colorToCssRgb
-                |> Parser.run rgb
-    in
-    case colorRgb_ of
-        Ok colorRgb ->
-            Element.rgb (colorRgb.r / 255) (colorRgb.g / 255) (colorRgb.b / 255)
-
-        Err _ ->
-            toElmUIColor defaultColor
+    color
+        |> toRgba
+        |> (\{ red, green, blue, alpha } -> Element.rgba red green blue alpha)
 
 
-type alias Rgb =
-    { r : Float
-    , g : Float
-    , b : Float
+type alias Hsla =
+    { hue : Float
+    , saturation : Float
+    , lightness : Float
+    , alpha : Float
     }
-
-
-rgb : Parser Rgb
-rgb =
-    succeed Rgb
-        |. symbol "rgb("
-        |= float
-        |. symbol ","
-        |. spaces
-        |= float
-        |. symbol ","
-        |. spaces
-        |= float
-        |. symbol ")"
-
-
-type alias Hsl =
-    { h : Float
-    , s : Float
-    , l : Float
-    }
-
-
-hsl : Parser Hsl
-hsl =
-    succeed Hsl
-        |. symbol "hsl("
-        |. spaces
-        |= float
-        |. symbol ","
-        |. spaces
-        |= float
-        |. symbol "%,"
-        |. spaces
-        |= float
-        |. symbol "%)"
