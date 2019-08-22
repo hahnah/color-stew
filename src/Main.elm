@@ -304,6 +304,7 @@ type ColorScheme
     | Square
     | SquarePlusDark
     | SquarePlusLight
+    | Rectangle
     | Pentad
     | Monochromatic
 
@@ -344,6 +345,9 @@ colorSchemeToString scheme =
         SquarePlusLight ->
             "Square + Light"
 
+        Rectangle ->
+            "Rectangle"
+
         Pentad ->
             "Pentad"
 
@@ -383,6 +387,9 @@ pickSchemeColors scheme baseColor =
 
         SquarePlusLight ->
             pickSquare baseColor ++ [ pickLightColor baseColor ]
+
+        Rectangle ->
+            pickRectangle baseColor
 
         Pentad ->
             pickPentad baseColor
@@ -478,6 +485,7 @@ viewLeftPane model =
         , viewColorScheme Square model
         , viewColorScheme SquarePlusDark model
         , viewColorScheme SquarePlusLight model
+        , viewColorScheme Rectangle model
         , viewColorScheme Pentad model
         ]
 
@@ -847,6 +855,15 @@ pickAnalogous baseColor =
 pickSquare : Color -> List Color
 pickSquare baseColor =
     pickPolyad baseColor 4
+
+
+pickRectangle : Color -> List Color
+pickRectangle baseColor =
+    baseColor
+        :: pickNthNext baseColor 6 1
+        :: pickNthNext baseColor 6 3
+        :: pickNthNext baseColor 6 4
+        :: []
 
 
 pickPentad : Color -> List Color
