@@ -358,13 +358,13 @@ pickSchemeColors scheme baseColor =
             pickDyad baseColor
 
         DyadPlusDarkAndLight ->
-            pickDyad baseColor ++ [ pickDarkColor baseColor ] ++ [ pickLightColor baseColor ]
+            pickDyad baseColor ++ [ pickDarkColor baseColor, pickLightColor baseColor ]
 
         Triad ->
             pickTriad baseColor
 
         TriadPlusDarkAndLight ->
-            pickTriad baseColor ++ [ pickDarkColor baseColor ] ++ [ pickLightColor baseColor ]
+            pickTriad baseColor ++ [ pickDarkColor baseColor, pickLightColor baseColor ]
 
         Analogous ->
             pickAnalogous baseColor
@@ -373,7 +373,7 @@ pickSchemeColors scheme baseColor =
             pickCompound baseColor
 
         CompoundPlusDarkAndLight ->
-            pickCompound baseColor ++ [ pickDarkColor baseColor ] ++ [ pickLightColor baseColor ]
+            pickCompound baseColor ++ [ pickDarkColor baseColor, pickLightColor baseColor ]
 
         Square ->
             pickSquare baseColor
@@ -842,10 +842,10 @@ pickTriad baseColor =
 
 pickAnalogous : Color -> List Color
 pickAnalogous baseColor =
-    baseColor
-        :: pickNthNext baseColor 12 1
-        :: pickNthNext baseColor 12 -1
-        :: []
+    [ baseColor
+    , pickNthNext baseColor 12 1
+    , pickNthNext baseColor 12 -1
+    ]
 
 
 pickSquare : Color -> List Color
@@ -855,11 +855,11 @@ pickSquare baseColor =
 
 pickRectangle : Color -> List Color
 pickRectangle baseColor =
-    baseColor
-        :: pickNthNext baseColor 6 1
-        :: pickNthNext baseColor 6 3
-        :: pickNthNext baseColor 6 4
-        :: []
+    [ baseColor
+    , pickNthNext baseColor 6 1
+    , pickNthNext baseColor 6 3
+    , pickNthNext baseColor 6 4
+    ]
 
 
 pickPentad : Color -> List Color
@@ -869,10 +869,10 @@ pickPentad baseColor =
 
 pickCompound : Color -> List Color
 pickCompound color =
-    color
-        :: pickNthNext color 12 5
-        :: pickNthNext color 12 7
-        :: []
+    [ color
+    , pickNthNext color 12 5
+    , pickNthNext color 12 7
+    ]
 
 
 pickMonochromatic : Color -> List Color
