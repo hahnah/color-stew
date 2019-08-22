@@ -298,6 +298,7 @@ type ColorScheme
     | DyadPlusDarkAndLight
     | Triad
     | TriadPlusDarkAndLight
+    | Analogous
     | Compound
     | CompoundPlusDarkAndLight
     | Tetrad
@@ -324,6 +325,9 @@ colorSchemeToString scheme =
 
         TriadPlusDarkAndLight ->
             "Triad + Dark & Light"
+
+        Analogous ->
+            "Analogous"
 
         Compound ->
             "Compound"
@@ -361,6 +365,9 @@ pickSchemeColors scheme baseColor =
 
         TriadPlusDarkAndLight ->
             pickTriad baseColor ++ [ pickDarkColor baseColor ] ++ [ pickLightColor baseColor ]
+
+        Analogous ->
+            pickAnalogous baseColor
 
         Compound ->
             pickCompound baseColor
@@ -465,6 +472,7 @@ viewLeftPane model =
         , viewColorScheme DyadPlusDarkAndLight model
         , viewColorScheme Triad model
         , viewColorScheme TriadPlusDarkAndLight model
+        , viewColorScheme Analogous model
         , viewColorScheme Compound model
         , viewColorScheme CompoundPlusDarkAndLight model
         , viewColorScheme Tetrad model
@@ -828,6 +836,14 @@ pickTriad baseColor =
     pickPolyad baseColor 3
 
 
+pickAnalogous : Color -> List Color
+pickAnalogous baseColor =
+    baseColor
+        :: pickNthNext baseColor 12 1
+        :: pickNthNext baseColor 12 -1
+        :: []
+
+
 pickTetrad : Color -> List Color
 pickTetrad baseColor =
     pickPolyad baseColor 4
@@ -885,6 +901,9 @@ pickNthNext baseColor total n =
                     pickedHue =
                         if gainedHue >= 1 then
                             gainedHue - 1
+
+                        else if gainedHue <= -1 then
+                            gainedHue + 1
 
                         else
                             gainedHue
