@@ -104,7 +104,6 @@ type Msg
     | LeaveMouseFromColorScheme ColorScheme
     | EnterMouseOntoStewedColor Int
     | LeaveMouseFromStewedColor Int
-    | None Float
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -244,9 +243,6 @@ update msg model =
               }
             , Cmd.none
             )
-
-        None _ ->
-            ( model, Cmd.none )
 
 
 adjustColor : Model -> HslElement -> Int -> Float -> Result String Color

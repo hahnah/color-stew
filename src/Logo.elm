@@ -2,7 +2,7 @@ module Logo exposing (logo)
 
 import Color exposing (Color)
 import Color.Convert exposing (colorToHex)
-import Svg exposing (Svg, g, metadata, path, svg)
+import Svg exposing (Svg, g, path, svg)
 import Svg.Attributes exposing (d, fill, height, preserveAspectRatio, stroke, transform, viewBox, width)
 
 
