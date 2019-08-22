@@ -136,11 +136,6 @@ update msg model =
                 arrayedColors =
                     Array.fromList model.stewedColors
 
-                colorToBeAdjusted : Maybe Color
-                colorToBeAdjusted =
-                    arrayedColors
-                        |> Array.get index
-
                 adjustedColor : Result String Color
                 adjustedColor =
                     adjustColor model Saturation index saturation
@@ -164,11 +159,6 @@ update msg model =
                 arrayedColors : Array Color
                 arrayedColors =
                     Array.fromList model.stewedColors
-
-                colorToBeAdjusted : Maybe Color
-                colorToBeAdjusted =
-                    arrayedColors
-                        |> Array.get index
 
                 adjustedColor : Result String Color
                 adjustedColor =
