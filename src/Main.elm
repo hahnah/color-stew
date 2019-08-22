@@ -301,9 +301,9 @@ type ColorScheme
     | Analogous
     | Compound
     | CompoundPlusDarkAndLight
-    | Tetrad
-    | TetradPlusDark
-    | TetradPlusLight
+    | Square
+    | SquarePlusDark
+    | SquarePlusLight
     | Pentad
     | Monochromatic
 
@@ -335,14 +335,14 @@ colorSchemeToString scheme =
         CompoundPlusDarkAndLight ->
             "Compound + Dark & Light"
 
-        Tetrad ->
-            "Tetrad"
+        Square ->
+            "Square"
 
-        TetradPlusDark ->
-            "Tetrad + Dark"
+        SquarePlusDark ->
+            "Square + Dark"
 
-        TetradPlusLight ->
-            "Tetrad + Light"
+        SquarePlusLight ->
+            "Square + Light"
 
         Pentad ->
             "Pentad"
@@ -375,14 +375,14 @@ pickSchemeColors scheme baseColor =
         CompoundPlusDarkAndLight ->
             pickCompound baseColor ++ [ pickDarkColor baseColor ] ++ [ pickLightColor baseColor ]
 
-        Tetrad ->
-            pickTetrad baseColor
+        Square ->
+            pickSquare baseColor
 
-        TetradPlusDark ->
-            pickTetrad baseColor ++ [ pickDarkColor baseColor ]
+        SquarePlusDark ->
+            pickSquare baseColor ++ [ pickDarkColor baseColor ]
 
-        TetradPlusLight ->
-            pickTetrad baseColor ++ [ pickLightColor baseColor ]
+        SquarePlusLight ->
+            pickSquare baseColor ++ [ pickLightColor baseColor ]
 
         Pentad ->
             pickPentad baseColor
@@ -475,9 +475,9 @@ viewLeftPane model =
         , viewColorScheme Analogous model
         , viewColorScheme Compound model
         , viewColorScheme CompoundPlusDarkAndLight model
-        , viewColorScheme Tetrad model
-        , viewColorScheme TetradPlusDark model
-        , viewColorScheme TetradPlusLight model
+        , viewColorScheme Square model
+        , viewColorScheme SquarePlusDark model
+        , viewColorScheme SquarePlusLight model
         , viewColorScheme Pentad model
         ]
 
@@ -844,8 +844,8 @@ pickAnalogous baseColor =
         :: []
 
 
-pickTetrad : Color -> List Color
-pickTetrad baseColor =
+pickSquare : Color -> List Color
+pickSquare baseColor =
     pickPolyad baseColor 4
 
 
