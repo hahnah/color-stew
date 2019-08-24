@@ -5,7 +5,7 @@ import Browser
 import Color exposing (Color, fromHsla, toHsla, toRgba)
 import Color.Convert exposing (colorToHex, hexToColor)
 import DnDList
-import Element exposing (Attribute, Element, alignRight, alignTop, centerX, centerY, column, el, fill, height, html, htmlAttribute, inFront, layout, maximum, mouseOver, none, padding, paddingEach, paddingXY, paragraph, px, row, spacing, text, width)
+import Element exposing (Attribute, Element, alignRight, alignTop, centerX, centerY, column, el, fill, focusStyle, height, html, htmlAttribute, inFront, layoutWith, maximum, mouseOver, none, padding, paddingEach, paddingXY, paragraph, px, row, spacing, text, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick, onMouseEnter, onMouseLeave)
@@ -360,7 +360,15 @@ pickSchemeColors scheme baseColor =
 
 view : Model -> Html Msg
 view model =
-    layout
+    layoutWith
+        { options =
+            [ focusStyle
+                { borderColor = Nothing
+                , backgroundColor = Nothing
+                , shadow = Nothing
+                }
+            ]
+        }
         [ width fill
         , alignTop
         , inFront (viewGhostStewedColor model.dnd model.stewedColors)
