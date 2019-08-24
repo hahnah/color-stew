@@ -795,10 +795,10 @@ viewButtonForAddtionColor isEnabled additionalColorType baseColor =
         additionalColor =
             case additionalColorType of
                 Blackish ->
-                    pickDarkColor baseColor
+                    pickBlackishColor baseColor
 
                 Whitish ->
-                    pickLightColor baseColor
+                    pickWhitishColor baseColor
 
         backgroundColor : Color
         backgroundColor =
@@ -897,16 +897,16 @@ pickPolyad baseColor dimension =
         |> List.map (pickNthNext baseColor dimension)
 
 
-pickDarkColor : Color -> Color
-pickDarkColor baseColor =
+pickBlackishColor : Color -> Color
+pickBlackishColor baseColor =
     baseColor
         |> toHsla
         |> (\hsla -> { hsla | lightness = min (hsla.lightness ^ 2) 0.13 })
         |> fromHsla
 
 
-pickLightColor : Color -> Color
-pickLightColor baseColor =
+pickWhitishColor : Color -> Color
+pickWhitishColor baseColor =
     baseColor
         |> toHsla
         |> (\hsla -> { hsla | lightness = max (hsla.lightness ^ 0.5) 0.97 })
