@@ -5,7 +5,7 @@ import Browser
 import Color exposing (Color, fromHsla, toHsla, toRgba)
 import Color.Convert exposing (colorToHex, hexToColor)
 import DnDList
-import Element exposing (Attribute, Element, alignRight, alignTop, centerX, centerY, column, el, fill, height, html, htmlAttribute, inFront, layout, maximum, none, padding, paddingEach, paddingXY, paragraph, px, row, spacing, text, width)
+import Element exposing (Attribute, Element, alignRight, alignTop, centerX, centerY, column, el, fill, height, html, htmlAttribute, inFront, layout, maximum, mouseOver, none, padding, paddingEach, paddingXY, paragraph, px, row, spacing, text, width)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onClick, onMouseEnter, onMouseLeave)
@@ -96,6 +96,7 @@ port copyString : String -> Cmd msg
 type Msg
     = PickColor String
     | SelectScheme ColorScheme (List Color)
+    | AddColor Color
     | AdjustSaturation Int Float
     | AdjustLightness Int Float
     | DragAndDrop DnDList.Msg
@@ -127,6 +128,11 @@ update msg model =
                 | stewedColors = schemeColors
                 , selectedColorScheme = scheme
               }
+            , Cmd.none
+            )
+
+        AddColor color ->
+            ( { model | stewedColors = model.stewedColors ++ [ color ] }
             , Cmd.none
             )
 
@@ -548,9 +554,18 @@ viewMainPane model =
             [ width fill
             , centerY
             ]
-            (model.stewedColors
-                |> List.indexedMap (viewRealStewedColor model)
-            )
+          <|
+            List.append
+                (model.stewedColors |> List.indexedMap (viewRealStewedColor model))
+                [ column
+                    [ spacing 5
+                    , centerX
+                    , centerY
+                    ]
+                    [ viewButtonForBlackishColor model
+                    , viewButtonForWhitishColor model
+                    ]
+                ]
         ]
 
 
@@ -796,6 +811,124 @@ viewStewedColor attributesForDndHandling color =
             attributesForDndHandling
         )
         none
+
+
+type AddtionalColorType
+    = Blackish
+    | Whitish
+
+
+viewButtonForBlackishColor : Model -> Element Msg
+viewButtonForBlackishColor model =
+    viewButtonForAddtionColor (List.length model.stewedColors < 5) Blackish model.pickedColor
+
+
+viewButtonForWhitishColor : Model -> Element Msg
+viewButtonForWhitishColor model =
+    viewButtonForAddtionColor (List.length model.stewedColors < 5) Whitish model.pickedColor
+
+
+viewButtonForAddtionColor : Bool -> AddtionalColorType -> Color -> Element Msg
+viewButtonForAddtionColor isEnabled additionalColorType baseColor =
+    let
+        additionalColor : Color
+        additionalColor =
+            case additionalColorType of
+                Blackish ->
+                    pickDarkColor baseColor
+
+                Whitish ->
+                    pickLightColor baseColor
+
+        backgroundColor : Color
+        backgroundColor =
+            if isEnabled then
+                additionalColor
+
+            else
+                Color.lightGray
+
+        label : String
+        label =
+            case additionalColorType of
+                Blackish ->
+                    "Blackish"
+
+                Whitish ->
+                    "Whitish "
+
+        -- Adjusting the length by the " " at the tail to make its length same with "Blackish".
+        labelColor : Color
+        labelColor =
+            if isEnabled then
+                case additionalColorType of
+                    Blackish ->
+                        Color.white
+
+                    Whitish ->
+                        Color.black
+
+            else
+                Color.darkGray
+
+        iconPath : String
+        iconPath =
+            if isEnabled then
+                case additionalColorType of
+                    Blackish ->
+                        "assets/white-plus.svg"
+
+                    Whitish ->
+                        "assets/black-plus.svg"
+
+            else
+                "assets/darkgray-plus.svg"
+    in
+    button
+        [ centerX
+        , centerY
+        , width <| px 140
+        , height <| px 70
+        , mouseOver <|
+            if isEnabled then
+                [ Background.color <| toElmUIColor Color.lightGray ]
+
+            else
+                []
+        ]
+        { onPress =
+            if isEnabled then
+                Just <| AddColor <| additionalColor
+
+            else
+                Nothing
+        , label =
+            row
+                [ centerX
+                , centerY
+                , spacing 4
+                , width <| px 100
+                , height <| px 50
+                , Background.color <| toElmUIColor backgroundColor
+                ]
+                [ el
+                    [ centerX
+                    , centerY
+                    , width <| px 15
+                    , height <| px 15
+                    , Background.uncropped iconPath
+                    ]
+                    none
+                , el
+                    [ centerX
+                    , centerY
+                    , Font.size 15
+                    , Font.color <| toElmUIColor labelColor
+                    ]
+                  <|
+                    text label
+                ]
+        }
 
 
 pickPolyad : Color -> Int -> List Color
