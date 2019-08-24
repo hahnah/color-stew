@@ -97,6 +97,7 @@ type Msg
     = PickColor String
     | SelectScheme ColorScheme (List Color)
     | AddColor Color
+    | RemoveColor Int
     | AdjustSaturation Int Float
     | AdjustLightness Int Float
     | DragAndDrop DnDList.Msg
@@ -133,6 +134,11 @@ update msg model =
 
         AddColor color ->
             ( { model | stewedColors = model.stewedColors ++ [ color ] }
+            , Cmd.none
+            )
+
+        RemoveColor index ->
+            ( { model | stewedColors = List.take index model.stewedColors ++ List.drop (index + 1) model.stewedColors }
             , Cmd.none
             )
 
@@ -678,84 +684,99 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
                 Nothing ->
                     Color.white
     in
-    column
+    row
         [ width fill
+        , height fill
         , Background.color <| toElmUIColor backgroundColor
         ]
-        [ row
+        [ button
             [ centerX
-            , spacing 10
-            , paddingXY 0 5
+            , width <| px 18
+            , height fill
+            , Background.uncropped "assets/minus.svg"
             ]
-            [ el
-                [ Font.size 15 ]
-                (text <| colorToHex color)
-            , button
-                [ width <| px 20
-                , height <| px 20
-                , Background.uncropped "assets/clipboard.svg"
+            { onPress = Just <| RemoveColor <| index
+            , label = none
+            }
+        , column
+            [ width fill
+            , centerX
+            ]
+            [ row
+                [ centerX
+                , spacing 10
+                , paddingXY 0 5
                 ]
-                { onPress = Just <| CopyColorCode <| colorToHex color
-                , label = none
-                }
-            ]
-        , el
-            [ centerX
-            , onMouseEnter <| EnterMouseOntoStewedColor index
-            , onMouseLeave <| LeaveMouseFromStewedColor index
-            ]
-            (viewStewedColor attributesForDndHandling color)
-        , el
-            [ centerX
-            , width <| px 100
-            , paddingXY 0 5
-            ]
-            (slider
-                [ Background.color <| toElmUIColor Color.lightGray
-                , Border.rounded 10
+                [ el
+                    [ Font.size 15 ]
+                    (text <| colorToHex color)
+                , button
+                    [ width <| px 20
+                    , height <| px 20
+                    , Background.uncropped "assets/clipboard.svg"
+                    ]
+                    { onPress = Just <| CopyColorCode <| colorToHex color
+                    , label = none
+                    }
                 ]
-                { label = labelHidden <| String.fromFloat colorHsla.saturation
-                , onChange = AdjustSaturation index
-                , min = 0
-                , max = 1
-                , step = Nothing
-                , value = colorHsla.saturation
-                , thumb =
-                    thumb
-                        [ Background.color <| toElmUIColor Color.white
-                        , Border.width 0
-                        , Border.rounded 20
-                        , width <| px 20
-                        , height <| px 20
-                        , Background.uncropped "assets/saturation.svg"
-                        ]
-                }
-            )
-        , el
-            [ centerX
-            , width <| px 100
-            ]
-            (slider
-                [ Background.color <| toElmUIColor Color.lightGray
-                , Border.rounded 10
+            , el
+                [ centerX
+                , onMouseEnter <| EnterMouseOntoStewedColor index
+                , onMouseLeave <| LeaveMouseFromStewedColor index
                 ]
-                { label = labelHidden <| String.fromFloat colorHsla.lightness
-                , onChange = AdjustLightness index
-                , min = 0
-                , max = 1
-                , step = Nothing
-                , value = colorHsla.lightness
-                , thumb =
-                    thumb
-                        [ Background.color <| toElmUIColor Color.white
-                        , Border.width 0
-                        , Border.rounded 20
-                        , width <| px 20
-                        , height <| px 20
-                        , Background.uncropped "assets/lightness.svg"
-                        ]
-                }
-            )
+                (viewStewedColor attributesForDndHandling color)
+            , el
+                [ centerX
+                , width <| px 100
+                , paddingXY 0 5
+                ]
+                (slider
+                    [ Background.color <| toElmUIColor Color.lightGray
+                    , Border.rounded 10
+                    ]
+                    { label = labelHidden <| String.fromFloat colorHsla.saturation
+                    , onChange = AdjustSaturation index
+                    , min = 0
+                    , max = 1
+                    , step = Nothing
+                    , value = colorHsla.saturation
+                    , thumb =
+                        thumb
+                            [ Background.color <| toElmUIColor Color.white
+                            , Border.width 0
+                            , Border.rounded 20
+                            , width <| px 20
+                            , height <| px 20
+                            , Background.uncropped "assets/saturation.svg"
+                            ]
+                    }
+                )
+            , el
+                [ centerX
+                , width <| px 100
+                ]
+                (slider
+                    [ Background.color <| toElmUIColor Color.lightGray
+                    , Border.rounded 10
+                    ]
+                    { label = labelHidden <| String.fromFloat colorHsla.lightness
+                    , onChange = AdjustLightness index
+                    , min = 0
+                    , max = 1
+                    , step = Nothing
+                    , value = colorHsla.lightness
+                    , thumb =
+                        thumb
+                            [ Background.color <| toElmUIColor Color.white
+                            , Border.width 0
+                            , Border.rounded 20
+                            , width <| px 20
+                            , height <| px 20
+                            , Background.uncropped "assets/lightness.svg"
+                            ]
+                    }
+                )
+            ]
         ]
 
 
