@@ -518,6 +518,7 @@ viewMainPane model =
         [ viewPreview model
         , row
             [ width fill
+            , centerX
             , centerY
             ]
           <|
@@ -687,17 +688,22 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
     row
         [ width fill
         , height fill
+        , spacing 7
         , Background.color <| toElmUIColor backgroundColor
         ]
-        [ button
-            [ centerX
-            , width <| px 18
-            , height fill
-            , Background.uncropped "assets/minus.svg"
-            ]
-            { onPress = Just <| RemoveColor <| index
-            , label = none
-            }
+        [ el [ width fill ] none -- for adjusting layout
+        , el
+            [ height fill ]
+          <|
+            button
+                [ alignRight
+                , width <| px 18
+                , height fill
+                , Background.uncropped "assets/minus.svg"
+                ]
+                { onPress = Just <| RemoveColor <| index
+                , label = none
+                }
         , column
             [ width fill
             , centerX
@@ -777,6 +783,7 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
                     }
                 )
             ]
+        , el [ width fill ] none
         ]
 
 
