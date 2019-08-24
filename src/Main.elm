@@ -287,15 +287,10 @@ type HslElement
 
 type ColorScheme
     = Dyad
-    | DyadPlusDarkAndLight
     | Triad
-    | TriadPlusDarkAndLight
     | Analogous
     | Compound
-    | CompoundPlusDarkAndLight
     | Square
-    | SquarePlusDark
-    | SquarePlusLight
     | Rectangle
     | Pentad
     | Monochromatic
@@ -310,14 +305,8 @@ colorSchemeToString scheme =
         Dyad ->
             "Dyad"
 
-        DyadPlusDarkAndLight ->
-            "Dyad + Dark & Light"
-
         Triad ->
             "Triad"
-
-        TriadPlusDarkAndLight ->
-            "Triad + Dark & Light"
 
         Analogous ->
             "Analogous"
@@ -325,17 +314,8 @@ colorSchemeToString scheme =
         Compound ->
             "Compound"
 
-        CompoundPlusDarkAndLight ->
-            "Compound + Dark & Light"
-
         Square ->
             "Square"
-
-        SquarePlusDark ->
-            "Square + Dark"
-
-        SquarePlusLight ->
-            "Square + Light"
 
         Rectangle ->
             "Rectangle"
@@ -353,14 +333,8 @@ pickSchemeColors scheme baseColor =
         Dyad ->
             pickDyad baseColor
 
-        DyadPlusDarkAndLight ->
-            pickDyad baseColor ++ [ pickDarkColor baseColor, pickLightColor baseColor ]
-
         Triad ->
             pickTriad baseColor
-
-        TriadPlusDarkAndLight ->
-            pickTriad baseColor ++ [ pickDarkColor baseColor, pickLightColor baseColor ]
 
         Analogous ->
             pickAnalogous baseColor
@@ -368,17 +342,8 @@ pickSchemeColors scheme baseColor =
         Compound ->
             pickCompound baseColor
 
-        CompoundPlusDarkAndLight ->
-            pickCompound baseColor ++ [ pickDarkColor baseColor, pickLightColor baseColor ]
-
         Square ->
             pickSquare baseColor
-
-        SquarePlusDark ->
-            pickSquare baseColor ++ [ pickDarkColor baseColor ]
-
-        SquarePlusLight ->
-            pickSquare baseColor ++ [ pickLightColor baseColor ]
 
         Rectangle ->
             pickRectangle baseColor
@@ -468,15 +433,10 @@ viewLeftPane model =
             )
         , viewColorScheme Monochromatic model
         , viewColorScheme Dyad model
-        , viewColorScheme DyadPlusDarkAndLight model
         , viewColorScheme Triad model
-        , viewColorScheme TriadPlusDarkAndLight model
         , viewColorScheme Analogous model
         , viewColorScheme Compound model
-        , viewColorScheme CompoundPlusDarkAndLight model
         , viewColorScheme Square model
-        , viewColorScheme SquarePlusDark model
-        , viewColorScheme SquarePlusLight model
         , viewColorScheme Rectangle model
         , viewColorScheme Pentad model
         ]
