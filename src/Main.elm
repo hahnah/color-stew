@@ -371,6 +371,19 @@ viewLeftPane model =
         monochromaticColors : List Color
         monochromaticColors =
             pickMonochromatic model.pickedColor
+
+        adjustVisibility : Color -> Color
+        adjustVisibility color =
+            let
+                hsla : Hsla
+                hsla =
+                    Color.toHsla color
+            in
+            if hsla.alpha < 0.5 then
+                Color.hsla hsla.hue hsla.saturation (1.0 - hsla.lightness) (1.0 - hsla.alpha)
+
+            else
+                color
     in
     column
         [ width <| px 320
@@ -387,9 +400,11 @@ viewLeftPane model =
                 [ alignRight
                 , paddingXY 25 5
                 , Font.heavy
-                , List.drop 4 monochromaticColors
+                , monochromaticColors
+                    |> List.drop 4
                     |> List.head
                     |> Maybe.withDefault Color.black
+                    |> adjustVisibility
                     |> toElmUiColor
                     |> Font.color
                 ]
@@ -411,9 +426,11 @@ viewLeftPane model =
             [ width fill
             , spacing 10
             , Font.size 15
-            , List.drop 4 monochromaticColors
+            , monochromaticColors
+                |> List.drop 4
                 |> List.head
                 |> Maybe.withDefault Color.white
+                |> adjustVisibility
                 |> toElmUiColor
                 |> Font.color
             , List.drop 1 monochromaticColors
