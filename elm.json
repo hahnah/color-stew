@@ -13,7 +13,8 @@
             "elm/html": "1.0.0",
             "elm/svg": "1.0.1",
             "mdgriffith/elm-ui": "1.1.5",
-            "noahzgordon/elm-color-extra": "1.0.2"
+            "noahzgordon/elm-color-extra": "1.0.2",
+            "simonh1000/elm-colorpicker": "2.0.0"
         },
         "indirect": {
             "elm/json": "1.1.3",
