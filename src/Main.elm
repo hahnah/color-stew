@@ -445,7 +445,7 @@ viewLeftPane model =
                 [ centerX
                 , centerY
                 ]
-                (text "Color Shemes")
+                (text "Color Sheme Templates")
             )
         , viewColorScheme Monochromatic model
         , viewColorScheme Dyad model
