@@ -391,6 +391,7 @@ viewLeftPane model =
         ]
         [ row
             [ width fill
+            , height fill
             , List.head monochromaticColors
                 |> Maybe.withDefault Color.white
                 |> toElmUiColor
@@ -424,6 +425,7 @@ viewLeftPane model =
             ]
         , el
             [ width fill
+            , height <| px 25
             , spacing 10
             , Font.size 15
             , monochromaticColors
@@ -441,7 +443,7 @@ viewLeftPane model =
             ]
             (el
                 [ centerX
-                , padding 2
+                , centerY
                 ]
                 (text "Color Shemes")
             )
