@@ -401,7 +401,7 @@ viewLeftPane model =
             [ width fill
             , List.head monochromaticColors
                 |> Maybe.withDefault Color.white
-                |> toElmUIColor
+                |> toElmUiColor
                 |> Background.color
             ]
             [ el
@@ -411,7 +411,7 @@ viewLeftPane model =
                 , List.drop 4 monochromaticColors
                     |> List.head
                     |> Maybe.withDefault Color.black
-                    |> toElmUIColor
+                    |> toElmUiColor
                     |> Font.color
                 ]
                 (text "Pick Base Color →")
@@ -431,12 +431,12 @@ viewLeftPane model =
             , List.drop 4 monochromaticColors
                 |> List.head
                 |> Maybe.withDefault Color.white
-                |> toElmUIColor
+                |> toElmUiColor
                 |> Font.color
             , List.drop 1 monochromaticColors
                 |> List.head
                 |> Maybe.withDefault Color.black
-                |> toElmUIColor
+                |> toElmUiColor
                 |> Background.color
             ]
             (el
@@ -492,7 +492,7 @@ viewColorScheme scheme model =
         , padding 7
         , Font.size 16
         , width fill
-        , Background.color <| toElmUIColor backgroundColor
+        , Background.color <| toElmUiColor backgroundColor
         ]
         [ text schemeName
         , viewColorSet schemeColors
@@ -502,7 +502,7 @@ viewColorScheme scheme model =
 viewColorSet : List Color -> Element msg
 viewColorSet colors =
     colors
-        |> List.map toElmUIColor
+        |> List.map toElmUiColor
         |> List.map viewColor
         |> row []
 
@@ -584,11 +584,11 @@ viewPreview model =
     in
     column
         [ centerX
-        , Background.color <| toElmUIColor baseColor
+        , Background.color <| toElmUiColor baseColor
         , width fill
         ]
         [ el
-            [ Font.color <| toElmUIColor titleColor
+            [ Font.color <| toElmUiColor titleColor
             , Font.size 30
             , Font.heavy
             , centerX
@@ -601,16 +601,16 @@ viewPreview model =
             ]
             (text "Color Stew")
         , el
-            [ Font.color <| toElmUIColor baseColor
+            [ Font.color <| toElmUiColor baseColor
             , centerX
             ]
             (html <| Logo.logo 380 logoColor)
         , el
-            [ Background.color <| toElmUIColor textBackgroundColor
+            [ Background.color <| toElmUiColor textBackgroundColor
             , width fill
             ]
             (el
-                [ Font.color <| toElmUIColor textColor
+                [ Font.color <| toElmUiColor textColor
                 , Font.size 18
                 , centerX
                 , paddingXY 50 20
@@ -697,7 +697,7 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
         [ width fill
         , height fill
         , spacing 7
-        , Background.color <| toElmUIColor backgroundColor
+        , Background.color <| toElmUiColor backgroundColor
         ]
         [ el [ width fill ] none -- for adjusting layout
         , el
@@ -745,7 +745,7 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
                 , paddingXY 0 5
                 ]
                 (slider
-                    [ Background.color <| toElmUIColor Color.lightGray
+                    [ Background.color <| toElmUiColor Color.lightGray
                     , Border.rounded 10
                     ]
                     { label = labelHidden <| String.fromFloat colorHsla.saturation
@@ -756,7 +756,7 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
                     , value = colorHsla.saturation
                     , thumb =
                         thumb
-                            [ Background.color <| toElmUIColor Color.white
+                            [ Background.color <| toElmUiColor Color.white
                             , Border.width 0
                             , Border.rounded 20
                             , width <| px 20
@@ -770,7 +770,7 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
                 , width <| px 100
                 ]
                 (slider
-                    [ Background.color <| toElmUIColor Color.lightGray
+                    [ Background.color <| toElmUiColor Color.lightGray
                     , Border.rounded 10
                     ]
                     { label = labelHidden <| String.fromFloat colorHsla.lightness
@@ -781,7 +781,7 @@ viewStewedColorWithSurroundings model attributesForDndHandling index color =
                     , value = colorHsla.lightness
                     , thumb =
                         thumb
-                            [ Background.color <| toElmUIColor Color.white
+                            [ Background.color <| toElmUiColor Color.white
                             , Border.width 0
                             , Border.rounded 20
                             , width <| px 20
@@ -802,7 +802,7 @@ viewStewedColor attributesForDndHandling color =
             [ centerX
             , width <| px 100
             , height <| px 70
-            , Background.color <| toElmUIColor color
+            , Background.color <| toElmUiColor color
             ]
             attributesForDndHandling
         )
@@ -887,7 +887,7 @@ viewButtonForAddtionColor isEnabled additionalColorType baseColor =
         , height <| px 70
         , mouseOver <|
             if isEnabled then
-                [ Background.color <| toElmUIColor Color.lightGray ]
+                [ Background.color <| toElmUiColor Color.lightGray ]
 
             else
                 []
@@ -905,7 +905,7 @@ viewButtonForAddtionColor isEnabled additionalColorType baseColor =
                 , spacing 4
                 , width <| px 100
                 , height <| px 50
-                , Background.color <| toElmUIColor backgroundColor
+                , Background.color <| toElmUiColor backgroundColor
                 ]
                 [ el
                     [ centerX
@@ -919,7 +919,7 @@ viewButtonForAddtionColor isEnabled additionalColorType baseColor =
                     [ centerX
                     , centerY
                     , Font.size 15
-                    , Font.color <| toElmUIColor labelColor
+                    , Font.color <| toElmUiColor labelColor
                     ]
                   <|
                     text label
@@ -1045,8 +1045,8 @@ pickNthNext baseColor total n =
         |> fromHsla
 
 
-toElmUIColor : Color -> Element.Color
-toElmUIColor color =
+toElmUiColor : Color -> Element.Color
+toElmUiColor color =
     color
         |> toRgba
         |> (\{ red, green, blue, alpha } -> Element.rgba red green blue alpha)
