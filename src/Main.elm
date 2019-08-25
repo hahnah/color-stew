@@ -102,8 +102,6 @@ type Msg
     | AdjustLightness Int Float
     | DragAndDrop DnDList.Msg
     | CopyColorCode String
-    | EnterMouseOntoColorScheme ColorScheme
-    | LeaveMouseFromColorScheme ColorScheme
     | EnterMouseOntoStewedColor Int
     | LeaveMouseFromStewedColor Int
 
@@ -201,28 +199,6 @@ update msg model =
 
         CopyColorCode colorCode ->
             ( model, copyString colorCode )
-
-        EnterMouseOntoColorScheme ontoColorScheme ->
-            ( { model | hoveredColorScheme = Just ontoColorScheme }
-            , Cmd.none
-            )
-
-        LeaveMouseFromColorScheme fromColorScheme ->
-            ( { model
-                | hoveredColorScheme =
-                    case model.hoveredColorScheme of
-                        Just hoveredColorScheme ->
-                            if fromColorScheme == hoveredColorScheme then
-                                Nothing
-
-                            else
-                                model.hoveredColorScheme
-
-                        Nothing ->
-                            Nothing
-              }
-            , Cmd.none
-            )
 
         EnterMouseOntoStewedColor ontoIndex ->
             ( { model | indexOfHoveredStewedColor = Just ontoIndex }
@@ -486,8 +462,7 @@ viewColorScheme scheme model =
     in
     column
         [ onClick <| SelectScheme scheme schemeColors
-        , onMouseLeave <| LeaveMouseFromColorScheme scheme
-        , onMouseEnter <| EnterMouseOntoColorScheme scheme
+        , mouseOver [ Background.color <| toElmUiColor Color.lightGray ]
         , spacing 2
         , padding 7
         , Font.size 16
