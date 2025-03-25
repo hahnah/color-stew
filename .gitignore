@@ -1,9 +1,0 @@
-# Mac
-.DS_Store
-
-# Elm
-elm-stuff
-repl-temp-*
-
-# Elm outputs
-main.js
