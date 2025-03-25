@@ -6,22 +6,29 @@ Try Color Stew at [https://superhahnah.com/application/color-stew](https://super
 
 ## Build
 
-### Development Build
+### Requirements
+
+- [Node.js](https://nodejs.org/).
+- [Volta](https://volta.sh/)
+
+### Install Dependencies
+
+Setup Volta and run following command.
 
 ```sh
-$ elm make src/*.elm --output=main.js --debug
+npm install
 ```
 
-Or with [elm-live](https://www.npmjs.com/package/elm-live), following command works.
+### Run Development Server
 
 ```sh
-$ elm-live src/*.elm -- --output=main.js --debug
+npm run start
 ```
 
 ### Production Build
 
 ```sh
-$ elm make src/*.elm --output=main.js --optimize
+npm run build
 ```
 
 ## License

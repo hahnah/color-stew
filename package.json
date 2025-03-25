@@ -1,0 +1,16 @@
+{
+  "name": "color-stew",
+  "type": "module",
+  "scripts": {
+    "start": "elm-live src/Main.elm -- --output=main.js --debug",
+    "build": "mkdir -p dist && cp index.html index.js dist/ && elm make src/Main.elm --output=dist/main.js --optimize"
+  },
+  "devDependencies": {
+    "elm": "0.19.1-6",
+    "elm-live": "4.0.2"
+  },
+  "volta": {
+    "node": "22.13.1",
+    "npm": "11.0.0"
+  }
+}
