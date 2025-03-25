@@ -2,7 +2,7 @@
 
 Color Stew is a design tool for experiments of color combinations.
 
-Try Color Stew at [https://superhahnah.com/application/color-stew](https://superhahnah.com/application/color-stew).
+Try Color Stew at [https://hahnah.github.io/color-stew](https://hahnah.github.io/color-stew).
 
 ## Build
 
