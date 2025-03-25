@@ -1,9 +1,13 @@
 # Mac
 .DS_Store
 
+# Node modules
+node_modules
+
 # Elm
 elm-stuff
 repl-temp-*
 
 # Elm outputs
 main.js
+dist
