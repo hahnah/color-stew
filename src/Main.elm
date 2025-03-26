@@ -3,7 +3,7 @@ port module Main exposing (main)
 import Array exposing (Array)
 import Browser
 import Color exposing (Color, fromHsla, toHsla, toRgba)
-import Color.Convert exposing (colorToHex, hexToColor)
+import Color.Convert exposing (colorToHex)
 import ColorPicker
 import DnDList
 import Element exposing (Attribute, Element, alignRight, alignTop, centerX, centerY, column, el, fill, focusStyle, height, html, htmlAttribute, inFront, layoutWith, maximum, mouseOver, none, padding, paddingEach, paddingXY, paragraph, px, row, spacing, text, width)
@@ -14,7 +14,6 @@ import Element.Font as Font
 import Element.Input exposing (button, labelHidden, slider, thumb)
 import Html exposing (Html)
 import Html.Attributes as Attributes
-import Html.Events as Events
 import Logo
 
 
@@ -97,7 +96,7 @@ port copyString : String -> Cmd msg
 
 
 type Msg
-    = PickColor String
+    = PickColor ColorPicker.Msg
     | SelectScheme ColorScheme (List Color)
     | AddColor Color
     | RemoveColor Int
@@ -112,15 +111,16 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        PickColor colorHex ->
+        PickColor pickerMsg ->
+            let
+                ( pickerModel, color ) =
+                    ColorPicker.update pickerMsg model.pickedColor model.colorPicker
+            in
             ( { model
-                | pickedColor =
-                    case hexToColor colorHex of
-                        Ok color ->
-                            color
-
-                        Err _ ->
-                            model.pickedColor
+                | colorPicker =
+                    pickerModel
+                , pickedColor =
+                    Maybe.withDefault model.pickedColor color
               }
             , Cmd.none
             )
@@ -391,6 +391,7 @@ viewLeftPane model =
         ]
         [ row
             [ width fill
+            , height fill
             , List.head monochromaticColors
                 |> Maybe.withDefault Color.white
                 |> toElmUiColor
@@ -400,21 +401,27 @@ viewLeftPane model =
                 [ alignRight
                 , paddingXY 25 5
                 , Font.heavy
-                , List.drop 4 monochromaticColors
+                , monochromaticColors
+                    |> List.drop 4
                     |> List.head
                     |> Maybe.withDefault Color.black
+                    |> adjustVisibility
                     |> toElmUiColor
                     |> Font.color
                 ]
-                (text "Pick Base Color →")
-            , html
-                (Html.input
-                    [ Attributes.type_ "color"
-                    , Attributes.value <| colorToHex model.pickedColor
-                    , Events.onInput PickColor
+              <|
+                column
+                    [ centerX
+                    , centerY
+                    , spacing 5
                     ]
-                    []
-                )
+                    [ text "Base"
+                    , text "Color"
+                    ]
+            , el
+                [ centerX ]
+              <|
+                viewColorPicker model
             ]
         , el
             [ width fill
@@ -449,6 +456,13 @@ viewLeftPane model =
         , viewColorScheme Rectangle model
         , viewColorScheme Pentad model
         ]
+
+
+viewColorPicker : Model -> Element Msg
+viewColorPicker model =
+    ColorPicker.view model.pickedColor model.colorPicker
+        |> Html.map PickColor
+        |> html
 
 
 viewColorScheme : ColorScheme -> Model -> Element Msg
