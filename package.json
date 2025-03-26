@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "start": "elm-live src/Main.elm -- --output=main.js --debug",
-    "build": "mkdir -p dist && cp index.html index.js dist/ && elm make src/Main.elm --output=dist/main.js --optimize"
+    "build": "mkdir -p dist && cp -r index.html index.js assets dist/ && elm make src/Main.elm --output=dist/main.js --optimize"
   },
   "devDependencies": {
     "elm": "0.19.1-6",
